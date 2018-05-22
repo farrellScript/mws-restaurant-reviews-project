@@ -142,6 +142,13 @@ class DBHelper {
   /**
    * Restaurant page URL.
    */
+  static urlTextForRestaurant(restaurant) {
+    return (`View Details For ${restaurant.name}`);
+  }
+
+  /**
+   * Restaurant page URL.
+   */
   static urlForRestaurant(restaurant) {
     return (`./restaurant.html?id=${restaurant.id}`);
   }
