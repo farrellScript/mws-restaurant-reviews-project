@@ -1,6 +1,8 @@
 let restaurant;
 var map;
-
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 /**
  * Initialize Google map, called from HTML.
  */
