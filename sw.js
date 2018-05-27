@@ -1,9 +1,9 @@
-var staticCacheName = "mws-v1";
+const staticCacheName = "mws-v1";
 
-self.addEventListener('install',function(event){
+self.addEventListener('install',(event)=>{
 	event.waitUntil(
 		caches.open(staticCacheName)
-		.then(function(cache){
+		.then((cache)=>{
 			return cache.addAll([
 				'/index.html',
 				'/restaurant.html',
@@ -12,7 +12,7 @@ self.addEventListener('install',function(event){
 				'/js/dbhelper.js',
 				'/data/restaurants.json',
 				'/css/styles.css',
-			]).catch(function(e){
+			]).catch((e)=>{
 				console.log('e',e)
 			});
 		})
@@ -25,7 +25,7 @@ self.addEventListener('activate', function(event) {
 			return Promise.all(
 				cacheNames.filter(function(cacheName) {
 				return cacheName.startsWith('mws-') &&
-						cacheName != staticCacheName;
+					cacheName != staticCacheName;
 				}).map(function(cacheName) {
 					return caches.delete(cacheName);
 				})
@@ -35,7 +35,7 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch',function(event){
-	var requestUrl = new URL(event.request.url);
+	const requestUrl = new URL(event.request.url);
 	if(requestUrl.origin === location.origin){
 		if(requestUrl.pathname === "/"){
 			event.respondWith(caches.match('/index.html'))
@@ -48,9 +48,9 @@ self.addEventListener('fetch',function(event){
 	}
 	event.respondWith(
 		caches.match(event.request)
-		.then(function(response){
+		.then((response)=>{
 			return response || fetch(event.request)
-			.catch(function(e){
+			.catch((e)=>{
 				console.log('e',e);
 			});
 		})

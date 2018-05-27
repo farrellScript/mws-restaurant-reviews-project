@@ -4,8 +4,14 @@ let restaurants,
 var map
 var markers = []
 
+/* Check to see if service worker is supported by the browser */
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
+  /* if it is, register the service worker */
+  navigator.serviceWorker.register('/sw.js').then(function(res){
+    console.log('service worker registered')
+  }).catch(function(error){
+    console.log('error registering service worker: ',error)
+  });
 }
 
 /**
