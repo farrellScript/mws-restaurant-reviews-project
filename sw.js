@@ -35,22 +35,24 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch',function(event){
-    var requestUrl = new URL(event.request.url);
-    if(requestUrl.origin === location.origin){
-			if(requestUrl.pathname === "/"){
-				event.respondWith(caches.match('/index.html'))
-				return;
-			}
-			if(requestUrl.pathname.match('/restaurant.html(.?)')){
-				event.respondWith(caches.match('/restaurant.html'))
-				return;
-			}
-    }
+	var requestUrl = new URL(event.request.url);
+	if(requestUrl.origin === location.origin){
+		if(requestUrl.pathname === "/"){
+			event.respondWith(caches.match('/index.html'))
+			return;
+		}
+		if(requestUrl.pathname.match('/restaurant.html(.?)')){
+			event.respondWith(caches.match('/restaurant.html'))
+			return;
+		}
+	}
 	event.respondWith(
-		caches.match(event.request).then(function(response){
-			return response || fetch(event.request);
-		}).catch(function(e){
-			console.log('e',e)
-		});
+		caches.match(event.request)
+		.then(function(response){
+			return response || fetch(event.request)
+			.catch(function(e){
+				console.log('e',e);
+			});
+		})
 	)
 })
