@@ -4,15 +4,72 @@ let restaurants,
 var map
 var markers = []
 
-/* Check to see if service worker is supported by the browser */
+/**
+ * Check to see if service worker is supported by the browser 
+ */
 if ('serviceWorker' in navigator) {
+  
   /* if it is, register the service worker */
   navigator.serviceWorker.register('/sw.js').then(function(res){
-    console.log('service worker registered')
+
+    // Already on the latest version, bail
+    if(!navigator.serviceWorker.controller){
+      return;
+    }
+    // Check to see if there's a waiting service worker
+    if (res.waiting){
+      _updateReady();
+      return 
+    }
+
+    if (res.installing) {
+      _trackInstalling(res.installing);
+      return;
+    }
+    
+    res.addEventListener('updatefound', function() {
+      _trackInstalling(res.installing);
+    });
+    
   }).catch(function(error){
     console.log('error registering service worker: ',error)
   });
+  
+  function _trackInstalling(worker){
+    worker.addEventListener('statechange',function(){
+      if (worker.state == 'installed'){
+        _updateReady(worker);
+      }
+    })
+  }
+  
+  /**
+   * Notifies the user that an updated SW is available
+   */
+  function _updateReady(worker){
+    
+    document.getElementById('toast').classList.add('active')
+    document.getElementById('update-version').addEventListener('click',function(){
+      worker.postMessage({action:'skipWaiting'})
+    })
+    document.getElementById('dismiss-version').addEventListener('click',function(){
+      document.getElementById('toast').classList.remove('active')
+    }) 
+  }
+
+  /**
+   * Listens for a change in the SW, reloads the page as a result
+   */
+  var refreshing;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    console.log('controller change')
+    if (refreshing) return;
+    window.location.reload();
+    refreshing = true;
+  });
 }
+
+
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
