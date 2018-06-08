@@ -42,20 +42,63 @@ if ('serviceWorker' in navigator) {
       }
     })
   }
-  
+  var focusedElement;
+  var theWorker;
   /**
    * Notifies the user that an updated SW is available
    */
   function _updateReady(worker){
-    
-    document.getElementById('toast').classList.add('active')
+
     document.getElementById('update-version').addEventListener('click',function(){
-      worker.postMessage({action:'skipWaiting'})
-    })
+      worker.postMessage({action:'skipWaiting'});
+    });
     document.getElementById('dismiss-version').addEventListener('click',function(){
-      document.getElementById('toast').classList.remove('active')
-    }) 
+      document.getElementById('toast').classList.remove('active');
+      focusedElement.focus()
+    });
+
+    // Remember what the last element that was focused was
+    focusedElement = document.activeElement;
+    focusedElement.tabindex = 1;
+   
+    // The 3 things that are focusable in the toast
+    var focusableElementsString = '#toast p, #update-version, #dismiss-version';
+    var focusableElements = document.querySelectorAll(focusableElementsString);
+    focusableElements = Array.prototype.slice.call(focusableElements);
+    
+    var firstTabStop = focusableElements[0];
+    var lastTabStop = focusableElements[focusableElements.length -1];
+
+    document.getElementById('toast').addEventListener('keydown',function(e){
+      //Check for Tab key press
+      if(e.keyCode === 9){
+        
+        if (e.shiftKey) {
+          //Pressed Shift Tab
+          if(document.activeElement === firstTabStop) {
+            e.preventDefault();
+            lastTabStop.focus();
+          }
+        }else{
+          //Pressed Tab
+          if(document.activeElement === lastTabStop) {
+            e.preventDefault();
+            firstTabStop.focus();
+          }
+        }
+      }
+      if (e.keyCode === 27){
+        document.getElementById('toast').classList.remove('active');
+        focusedElement.focus()
+      }   
+      console.log('active elemnt is ',document.activeElement)   
+    });
+
+    document.getElementById('toast').classList.add('active');
+    document.querySelector('#toast p').focus();
+
   }
+  
 
   /**
    * Listens for a change in the SW, reloads the page as a result
