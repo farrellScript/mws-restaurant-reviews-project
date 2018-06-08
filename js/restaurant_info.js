@@ -39,20 +39,65 @@ if ('serviceWorker' in navigator) {
       }
     })
   }
-  
+
+  var focusedElement;
   /**
    * Notifies the user that an updated SW is available
    */
   function _updateReady(worker){
-    
-    document.getElementById('toast').classList.add('active')
+    // If the user clicks on the update button, update the service worker
     document.getElementById('update-version').addEventListener('click',function(){
-      worker.postMessage({action:'skipWaiting'})
-    })
+      worker.postMessage({action:'skipWaiting'});
+    });
+    // If the user clicks the dismiss button, hide the toast
     document.getElementById('dismiss-version').addEventListener('click',function(){
-      document.getElementById('toast').classList.remove('active')
-    }) 
+      document.getElementById('toast').classList.remove('active');
+      focusedElement.focus()
+    });
+    // If the toast is displaying, listen for keyboard events
+    document.getElementById('toast').addEventListener('keydown',function(e){
+      //Check for Tab key press
+      if(e.keyCode === 9){
+        
+        if (e.shiftKey) {
+          //Pressed Shift Tab
+          if(document.activeElement === firstTabStop) {
+            e.preventDefault();
+            lastTabStop.focus();
+          }
+        }else{
+          //Pressed Tab
+          if(document.activeElement === lastTabStop) {
+            e.preventDefault();
+            firstTabStop.focus();
+          }
+        }
+      }
+      // Escape Key
+      if (e.keyCode === 27){
+        document.getElementById('toast').classList.remove('active');
+        focusedElement.focus()
+      } 
+    });
+
+    // Remember what the last element that was focused was, and make it focusable so we can return to it
+    focusedElement = document.activeElement;
+    focusedElement.tabindex = 1;
+   
+    // When the toast is visible, this is what we'll use to temporarily trap focus
+    var focusableElementsString = '#toast p, #update-version, #dismiss-version';
+    var focusableElements = document.querySelectorAll(focusableElementsString);
+    focusableElements = Array.prototype.slice.call(focusableElements);
+    
+    var firstTabStop = focusableElements[0];
+    var lastTabStop = focusableElements[focusableElements.length -1];
+
+    // Ok time to show the toast and focus on it
+    document.getElementById('toast').classList.add('active');
+    document.querySelector('#toast p').focus();
+
   }
+  
 
   /**
    * Listens for a change in the SW, reloads the page as a result
@@ -65,6 +110,8 @@ if ('serviceWorker' in navigator) {
     refreshing = true;
   });
 }
+
+
 
 /**
  * Initialize Google map, called from HTML.
