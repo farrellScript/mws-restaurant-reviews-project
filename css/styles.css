@@ -8,7 +8,7 @@ body,td,th,p{
 	line-height: 1.5;
 }
 body {
-	background-color: #fdfdfd;
+	background-color: #f3f3f3;
 	margin: 0;
 	position:relative;
 }
@@ -53,6 +53,8 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 #maincontent {
   background-color: #f3f3f3;
   min-height: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 .inside #maincontent {
   margin-top: 131px;
@@ -67,17 +69,17 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   text-transform: uppercase;
 }
 /* ====================== Navigation ====================== */
-nav {
+.main-header {
   width: 100%;
   height: 80px;
   background-color: #252831;
   text-align:center;
 }
-nav h1 {
+.main-header h1 {
   margin: auto;
   padding: 12px 0px 0px 0px;
 }
-nav h1 a {
+.main-header h1 a {
   color: #fff;
   font-size: 14pt;
   font-weight: 200;
@@ -174,7 +176,7 @@ nav h1 a {
   height: auto;
   min-width: 100%;
 }
-#restaurants-list li h1 {
+#restaurants-list li h2 {
   color: #f18200;
   font-family: Arial,sans-serif;
   font-size: 14pt;
@@ -347,7 +349,7 @@ nav h1 a {
 }
 
 @media screen and (min-width:397px){
-  nav h1 {
+  .main-header h1 {
     margin: auto;
     padding: 26px 0px 0px 0px;
   }
