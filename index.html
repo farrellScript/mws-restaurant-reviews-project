@@ -25,16 +25,16 @@
     <section id="restaurant-list-container" tabindex="-1">
       <div class="filter-options">
         <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()" aria-label="Neighborhood Selector">
           <option value="all">All Neighborhoods</option>
         </select>
-        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()" aria-label="Cuisine Selector">
           <option value="all">All Cuisines</option>
         </select>
       </div>
       <ul id="restaurants-list"></ul>
     </section>
-    <div id="toast" class="toast" role="dialog" aria-hidden>
+    <div id="toast" class="toast" role="dialog" tabindex="-1">
         <p tabindex="0">New Version Available</p>
         <div class="button-container">
             <button id="update-version">Update</button>

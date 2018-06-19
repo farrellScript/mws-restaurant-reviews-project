@@ -9,7 +9,7 @@ class DBHelper {
    */
   static get DATABASE_URL() {
     const port = 8000 // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
+    return `http://localhost:1337/restaurants`;
   }
 
   /**
@@ -22,7 +22,7 @@ class DBHelper {
       if (xhr.status === 200) { // Got a success response from server!
         const json = JSON.parse(xhr.responseText);
         const restaurants = json.restaurants;
-        callback(null, restaurants);
+        callback(null, json);
       } else { // Oops!. Got an error from server.
         const error = (`Request failed. Returned status of ${xhr.status}`);
         callback(error, null);
@@ -164,7 +164,7 @@ class DBHelper {
    * Restaurant image alt text
    */
   static imageTextForRestaurant(restaurant) {
-    return (`${restaurant.photographtext}`);
+    return (`${restaurant.name}`);
   }
 
 
