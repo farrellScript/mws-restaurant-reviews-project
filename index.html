@@ -19,20 +19,31 @@
   </header>
 
   <main id="maincontent">
-    <section id="map-container">
-      <div id="map" aria-role="application" aria-label="Map showing restaurant locations"></div>
+    <section id="map-container" class="map__container">
+      <div id="map" class="map__application" aria-role="application" aria-label="Map showing restaurant locations"></div>
     </section>
-    <section id="restaurant-list-container" tabindex="-1">
-      <div class="filter-options">
-        <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()" aria-label="Neighborhood Selector">
-          <option value="all">All Neighborhoods</option>
-        </select>
-        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()" aria-label="Cuisine Selector">
-          <option value="all">All Cuisines</option>
-        </select>
+    <section id="restaurant-list-container" class="filter__container" tabindex="-1">
+      <div class="filter__options">
+        <div class="filter__selectcontainer">
+          <label class="filter__label" for="neighborhoods-select">
+            Filter neighborhoods
+          </label>
+          <select class="filter__select" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+            <option value="all"></option>
+          </select>
+          <svg class="filter__selectdown" width='292.36px' height='292.36px' enable-background='new 0 0 292.362 292.362' version='1.1' viewBox='0 0 292.362 292.362' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><path d='m286.94 69.377c-3.614-3.617-7.898-5.424-12.848-5.424h-255.81c-4.952 0-9.233 1.807-12.85 5.424-3.617 3.621-5.424 7.902-5.424 12.851 0 4.948 1.807 9.229 5.424 12.847l127.91 127.91c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.91-127.91c3.613-3.617 5.427-7.898 5.427-12.847 0-4.948-1.814-9.229-5.427-12.85z'/></svg>
+        </div>
+        <div class="filter__selectcontainer">
+          <label class="filter__label" for="cuisines-select">
+            Filter Cuisines
+          </label>
+          <select id="cuisines-select" class="filter__select" name="cuisines" onchange="updateRestaurants()">
+            <option value="all"></option>
+          </select>
+          <svg class="filter__selectdown" width='292.36px' height='292.36px' enable-background='new 0 0 292.362 292.362' version='1.1' viewBox='0 0 292.362 292.362' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><path d='m286.94 69.377c-3.614-3.617-7.898-5.424-12.848-5.424h-255.81c-4.952 0-9.233 1.807-12.85 5.424-3.617 3.621-5.424 7.902-5.424 12.851 0 4.948 1.807 9.229 5.424 12.847l127.91 127.91c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.91-127.91c3.613-3.617 5.427-7.898 5.427-12.847 0-4.948-1.814-9.229-5.427-12.85z'/></svg>
+        </div>
       </div>
-      <ul id="restaurants-list"></ul>
+      <ul id="restaurants-list" class="restaurantlist__container"></ul>
     </section>
     <div id="toast" class="toast" role="dialog" tabindex="-1">
         <p tabindex="0">New Version Available</p>
@@ -49,8 +60,9 @@
   <!--<script async defer src="https://maps.googleapis.com/maps/api/js?&libraries=places&callback=initMap"></script>-->
 
 
-  <footer id="footer">
-    Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
+  <footer id="footer" class="footer__container">
+    <p class="footer__line">Copyright (c) 2018 <a href="/"><strong>Restaurant Reviews</strong></a></p>
+    <p class="footer__line">All Rights Reserved.</p> 
   </footer>
 
 </body>

@@ -167,6 +167,21 @@ class DBHelper {
     return (`${restaurant.name}`);
   }
 
+  /**
+   * Restaurant image alt text
+   */
+  static ratingForRestaurant(restaurant) {
+    let reviews = 0;
+    let total = 0;
+    restaurant.reviews.map((item)=>{
+      reviews++;
+      total = total + parseInt(item.rating)
+    })
+
+
+    return (Math.round(total/reviews));
+  }
+
 
   /**
    * Restaurant Image Source Set

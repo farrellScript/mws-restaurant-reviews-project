@@ -256,32 +256,80 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  * Create restaurant HTML.
  */
 createRestaurantHTML = (restaurant) => {
+  // Create a restaurant card
   const li = document.createElement('li');
+  li.className = 'restaurant__container';
 
+  // Add the image to the restaurant card
   const image = document.createElement('img');
-  image.className = 'restaurant-img';
+  image.className = 'restaurant__image';
   image.alt = DBHelper.imageTextForRestaurant(restaurant);
   image.srcset = DBHelper.imageSrcSetForRestaurant(restaurant);
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
+  
+  // Create a div to place text elements in
+  const lowercontainer = document.createElement('div')
+  lowercontainer.className = 'restaurant__textcontainer'
 
+  // Name of the restaurant
   const name = document.createElement('h2');
+  name.className = 'restaurant__name'
   name.innerHTML = restaurant.name;
-  li.append(name);
-
+  lowercontainer.append(name);
+  
+  // Review of the restaurant
+  const rating = document.createElement('div');
+  rating.className = 'restaurant__reviewcontainer';
+  const emptyStars = 5 - DBHelper.ratingForRestaurant(restaurant);
+  for(let i=0; i < DBHelper.ratingForRestaurant(restaurant); i++){
+    const fullstar = document.createElement('img');
+    fullstar.className="restaurant__star restaurant__star--full";
+    fullstar.src = "/img/fullstar.svg";
+    rating.append(fullstar);
+  }
+  for(let i=0; i < emptyStars; i++){
+    const emptystar = document.createElement('img');
+    emptystar.className="restaurant__star restaurant__star--empty";
+    emptystar.src = "/img/emptystar.svg";
+    rating.append(emptystar);
+  }
+  lowercontainer.append(rating);
+  
+  // Cuisine of the restaurant
+  const cuisine = document.createElement('p');
+  cuisine.className = 'restaurant__cuisine';
+  cuisine.innerHTML = restaurant.cuisine_type;
+  lowercontainer.append(cuisine);
+  
+  // Neighborhood of the restaurant
   const neighborhood = document.createElement('p');
+  neighborhood.className = "restaurant__neighborhood"
   neighborhood.innerHTML = restaurant.neighborhood;
-  li.append(neighborhood);
+  lowercontainer.append(neighborhood);
 
+  // HR Seperating the upper and lower part of the text section
+  const hr = document.createElement('hr');
+  hr.className = 'restaurant__hr';
+  lowercontainer.append(hr);
+
+
+
+  // Address of the restaurant
   const address = document.createElement('p');
+  address.className = "restaurant__address"
   address.innerHTML = restaurant.address;
-  li.append(address);
+  lowercontainer.append(address);
 
+  // Link to the restaurant
   const more = document.createElement('a');
+  more.className = "restaurant__link"
   more.innerHTML = DBHelper.urlTextForRestaurant(restaurant);
   more.href = DBHelper.urlForRestaurant(restaurant);
-  li.append(more)
+  lowercontainer.append(more)
 
+  // Add lower container to the card
+  li.append(lowercontainer)
   return li
 }
 
@@ -297,14 +345,24 @@ addMarkersToMap = (restaurants = self.restaurants) => {
       window.location.href = marker.options.url;
     }
   });
-  } 
-  /* addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
-    });
-    self.markers.push(marker);
-  });
-} */
+} 
+
+document.getElementById('neighborhoods-select').addEventListener('focus',function(){
+  this.previousElementSibling.classList.add('filter__label--active')
+})
+
+document.getElementById('neighborhoods-select').addEventListener('blur',function(){
+  if(this.value === 'all'){
+    this.previousElementSibling.classList.remove('filter__label--active')
+  }
+})
+
+document.getElementById('cuisines-select').addEventListener('focus',function(){
+  this.previousElementSibling.classList.add('filter__label--active');
+}) 
+
+document.getElementById('cuisines-select').addEventListener('blur',function(){
+  if(this.value === 'all'){
+    this.previousElementSibling.classList.remove('filter__label--active');
+  }
+})
