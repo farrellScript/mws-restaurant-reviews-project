@@ -286,12 +286,14 @@ createRestaurantHTML = (restaurant) => {
     const fullstar = document.createElement('img');
     fullstar.className="restaurant__star restaurant__star--full";
     fullstar.src = "/img/fullstar.svg";
+    fullstar.alt = ""
     rating.append(fullstar);
   }
   for(let i=0; i < emptyStars; i++){
     const emptystar = document.createElement('img');
     emptystar.className="restaurant__star restaurant__star--empty";
     emptystar.src = "/img/emptystar.svg";
+    emptystar.alt= ""
     rating.append(emptystar);
   }
   lowercontainer.append(rating);
