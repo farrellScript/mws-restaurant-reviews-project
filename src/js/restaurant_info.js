@@ -141,7 +141,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
           'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         id: 'mapbox.streets'    
       }).addTo(newMap);
-      fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
   });
@@ -182,8 +181,32 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
+  // Review of the restaurant
+  const rating = document.getElementById('rating');
+  const emptyStars = 5 - DBHelper.ratingForRestaurant(restaurant);
+  for(let i=0; i < DBHelper.ratingForRestaurant(restaurant); i++){
+    const fullstar = document.createElement('img');
+    fullstar.className="restaurant__star restaurant__star--full";
+    fullstar.src = "/img/fullstar.svg";
+    fullstar.alt = ""
+    rating.append(fullstar);
+  }
+  for(let i=0; i < emptyStars; i++){
+    const emptystar = document.createElement('img');
+    emptystar.className="restaurant__star restaurant__star--empty";
+    emptystar.src = "/img/emptystar.svg";
+    emptystar.alt= ""
+    rating.append(emptystar);
+  }
+
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
+
+  const addressicon = document.createElement('img');
+  addressicon.className = 'restaurantdetail__icon';
+  addressicon.src = '/img/waypoint.svg';
+  addressicon.alt = '';
+  address.prepend(addressicon)
 
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
@@ -194,9 +217,24 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
 
+  const cuisineicon = document.createElement('img');
+  cuisineicon.className = 'restaurantdetail__icon';
+  cuisineicon.src = '/img/cuisine.svg';
+  cuisineicon.alt = '';
+  cuisine.prepend(cuisineicon)
+
   // fill operating hours
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
+
+    const hours = document.getElementById('restaurantdetail__hourscontainer');
+  
+    const hoursicon = document.createElement('img');
+    hoursicon.className = 'restaurantdetail__icon';
+    hoursicon.src = '/img/clock.svg';
+    hoursicon.alt = '';
+    hours.prepend(hoursicon)
+
   }
   // fill reviews
   fillReviewsHTML();
@@ -211,10 +249,12 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
     const row = document.createElement('tr');
 
     const day = document.createElement('td');
+    day.className = 'restaurantdetail__day';
     day.innerHTML = key;
     row.appendChild(day);
 
     const time = document.createElement('td');
+    time.className = 'restaurantdetail__hour';
     time.innerHTML = operatingHours[key];
     row.appendChild(time);
 
@@ -229,6 +269,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
+  title.className = 'restaurantdetail__reviewstitle';
   container.appendChild(title);
 
   if (!reviews) {
@@ -249,34 +290,64 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
  */
 createReviewHTML = (review) => {
   const li = document.createElement('li');
+  li.className = 'restaurantdetail__review';
+  const commentHeader = document.createElement('div');
+  commentHeader.className = 'restaurantdetail__commentheader';
+
+  const leftdiv = document.createElement('div');
+  leftdiv.className = 'restaurantdetail__avatarcontainer';
+
+  const avatar = document.createElement('img');
+  avatar.src  = '/img/avatar.svg';
+  avatar.className = 'restaurantdetail__avatar';
+  avatar.alt = 'Avatar photo';
+  leftdiv.appendChild(avatar);
+  commentHeader.appendChild(leftdiv);
+
+  const rightdiv = document.createElement('div');
+  rightdiv.className = 'restaurantdetail__namecontainer';
+
   const name = document.createElement('p');
   name.innerHTML = review.name;
-  li.appendChild(name);
+  rightdiv.appendChild(name);
+  
+  // Create Stars for Review
+  const individualrating = document.createElement('p');
+  individualrating.className = 'restaurantdetail__individualreviewrating';
+  const emptyStars = 5 - parseInt(review.rating);
+  for(let i=0; i < review.rating; i++){
+    const fullstar = document.createElement('img');
+    fullstar.className="restaurant__star restaurant__star--full";
+    fullstar.src = "/img/fullstar.svg";
+    fullstar.alt = ""
+    individualrating.append(fullstar);
+  }
+  for(let i=0; i < emptyStars; i++){
+    const emptystar = document.createElement('img');
+    emptystar.className="restaurant__star restaurant__star--empty";
+    emptystar.src = "/img/emptystar.svg";
+    emptystar.alt= ""
+    individualrating.append(emptystar);
+  }
 
+  rightdiv.appendChild(individualrating);
   const date = document.createElement('p');
-  date.innerHTML = review.date;
-  li.appendChild(date);
+  date.className = 'restaurantdetail__reviewdate'
+  const reviewdate = new Date(review.date);
+  const todaydate = new Date();
+  // Subtract todays date from the date of the review, then format into days
+  const daysdifference = Math.round((todaydate - reviewdate)/1000/60/60/24)
+  date.innerHTML = `${daysdifference} ago`;
+  rightdiv.appendChild(date);
 
-  const rating = document.createElement('p');
-  rating.innerHTML = `Rating: ${review.rating}`;
-  li.appendChild(rating);
+  commentHeader.appendChild(rightdiv); 
+  li.appendChild(commentHeader);
 
   const comments = document.createElement('p');
   comments.innerHTML = review.comments;
   li.appendChild(comments);
 
   return li;
-}
-
-/**
- * Add restaurant name to the breadcrumb navigation menu
- */
-fillBreadcrumb = (restaurant=self.restaurant) => {
-  const breadcrumb = document.getElementById('breadcrumb');
-  const li = document.createElement('li');
-  li.setAttribute('aria-current','page')
-  li.innerHTML = restaurant.name;
-  breadcrumb.appendChild(li);
 }
 
 /**

@@ -6,6 +6,7 @@ var babel = require('gulp-babel')
 var sourcemaps = require('gulp-sourcemaps')
 var pngquant = require('imagemin-pngquant')
 var imagemin = require('gulp-imagemin')
+var webp = require('gulp-webp')
 
 gulp.task('default',function(){
     gulp.watch('./src/scss/**/*.scss',['styles'])
@@ -32,6 +33,7 @@ gulp.task('styles',function(){
 })
 gulp.task('images', function() {
     gulp.src('./src/img/*')
+        .pipe(webp())
         .pipe(imagemin({
             progressive: true,
             use: [pngquant()]
