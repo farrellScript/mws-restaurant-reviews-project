@@ -182,12 +182,33 @@ class DBHelper {
     return (Math.round(total/reviews));
   }
 
-
   /**
    * Restaurant Image Source Set
    */
   static imageSrcSetForRestaurant(restaurant) {
     return (`/img/${restaurant.photograph}_1x.jpg 1x, /img/${restaurant.photograph}_2x.jpg 2x`);
+  }
+
+  /**
+   * Restaurant Image Source Set, jpg
+   */
+  static imageJpgSrcSetForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.jpg 1x, /img/${restaurant.photograph}_2x.jpg 2x`);
+  }
+
+  /**
+   * Restaurant Image Source Set, webp
+   */
+  static imageWebPSrcSetForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.webp 1x, /img/${restaurant.photograph}_2x.webp 2x`);
+  }
+
+
+  /**
+   * Restaurant Image Source Fallback
+   */
+  static imageSrcForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.jpg`);
   }
 
   /**

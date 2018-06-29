@@ -260,13 +260,31 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
   li.className = 'restaurant__container';
 
-  // Add the image to the restaurant card
+  // Setup picture element
+  const picture = document.createElement('picture');
+  
+  // Add the first image set to the restaurant card
+  const webpimage = document.createElement('source');
+  webpimage.srcset = DBHelper.imageWebPSrcSetForRestaurant(restaurant);
+  webpimage.className = 'restaurant__image';
+  webpimage.type = 'image/webp';
+  picture.append(webpimage);
+
+  // // Add the first image set to the restaurant card
+  const jpgimage = document.createElement('source');
+  jpgimage.srcset = DBHelper.imageJpgSrcSetForRestaurant(restaurant);
+  jpgimage.className = 'restaurant__image';
+  jpgimage.type = 'image/jpeg';
+  picture.append(jpgimage);
+
+  // Add the first image set to the restaurant card
   const image = document.createElement('img');
   image.className = 'restaurant__image';
   image.alt = DBHelper.imageTextForRestaurant(restaurant);
-  image.srcset = DBHelper.imageSrcSetForRestaurant(restaurant);
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  li.append(image);
+  picture.append(image);
+
+  li.append(picture);
   
   // Create a div to place text elements in
   const lowercontainer = document.createElement('div')
