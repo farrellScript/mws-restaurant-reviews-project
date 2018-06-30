@@ -8,13 +8,24 @@ var pngquant = require('imagemin-pngquant')
 var imagemin = require('gulp-imagemin')
 var webp = require('gulp-webp')
 const webpack = require('webpack-stream');
+const webpack4 = require('webpack');
+
 
 
 gulp.task('default',function(){
     gulp.watch('./src/scss/**/*.scss',['styles'])
     gulp.watch('./src/js/**/*.js',['scripts'])
     gulp.watch('./src/img/*',['images'])
+    gulp.watch('./src/sw.js', ['sw'])
 })
+
+gulp.task('build',function(){
+    gulp.watch('./src/scss/**/*.scss',['styles-prod'])
+    gulp.watch('./src/js/**/*.js',['scripts-prod'])
+    gulp.watch('./src/img/*',['images-prod'])
+    gulp.watch('./src/sw.js', ['sw-prod'])
+})
+
 gulp.task('scripts',function(){
     gulp.src('./src/js/**/*.js')
         .pipe(sourcemaps.init())
@@ -23,16 +34,34 @@ gulp.task('scripts',function(){
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('./js'))
 })
+
+gulp.task('scripts-prod',function(){
+    gulp.src('./src/js/**/*.js')
+        .pipe(babel())
+        .pipe(uglify())
+        .pipe(gulp.dest('./js'))
+})
+
 gulp.task('styles',function(){
     gulp.src('./src/scss/**/*.scss')
         .pipe(sourcemaps.init())
-        .pipe(sass({outputStyle:'compressed'}).on('error',sass.logError))
+        .pipe(sass().on('error',sass.logError))
         .pipe(autoprefixer({
             browsers: ['last 2 versions']
         }))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest("./css"))
 })
+
+gulp.task('styles-prod',function(){
+    gulp.src('./src/scss/**/*.scss')
+        .pipe(sass({outputStyle:'compressed'}).on('error',sass.logError))
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions']
+        }))
+        .pipe(gulp.dest("./css"))
+})
+
 gulp.task('images', function() {
     gulp.src('./src/img/*')
         .pipe(webp())
@@ -42,13 +71,37 @@ gulp.task('images', function() {
         }))
         .pipe(gulp.dest('img'))
 });
+
+gulp.task('images-prod', function() {
+    gulp.src('./src/img/*')
+        .pipe(webp())
+        .pipe(imagemin({
+            progressive: true,
+            use: [pngquant()]
+        }))
+        .pipe(gulp.dest('img'))
+});
+
 gulp.task('sw',function(){
     return gulp.src('./src/sw.js')
     .pipe(webpack({
-        watch: true,
+        watch: false,
         output: {
             filename: 'sw.js',
           },
     }))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('sw-prod',function(){
+    return gulp.src('./src/sw.js')
+    .pipe(webpack({
+        watch: false,
+        mode:'production',
+        output: {
+            filename: 'sw.js',
+        }
+    },
+    webpack4))
     .pipe(gulp.dest('./'));
 });

@@ -16,7 +16,6 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    
     fetch(DBHelper.DATABASE_URL).then(function(response) {
       // Check the response status
       if(response.status === 200){
@@ -130,6 +129,7 @@ class DBHelper {
   static fetchCuisines(callback) {
     // Fetch all restaurants
     DBHelper.fetchRestaurants((error, restaurants) => {
+
       if (error) {
         callback(error, null);
       } else {

@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mws-v2";
+const staticCacheName = "mws-v21";
 //comment
 const dbPromise = idb.open('mwsrestaurantreviews',1,function(upgradeDb){
     switch(upgradeDb.oldVersion){
@@ -16,6 +16,7 @@ self.addEventListener('install',function(event){
 				'/',
 				'/restaurant.html',
 				'/manifest.json',
+				'/js/app.js',
 				'/js/main.js',
 				'/js/restaurant_info.js',
 				'/js/dbhelper.js',
