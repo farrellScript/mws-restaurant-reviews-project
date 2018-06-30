@@ -19,13 +19,6 @@ gulp.task('default',function(){
     gulp.watch('./src/sw.js', ['sw'])
 })
 
-gulp.task('build',function(){
-    gulp.watch('./src/scss/**/*.scss',['styles-prod'])
-    gulp.watch('./src/js/**/*.js',['scripts-prod'])
-    gulp.watch('./src/img/*',['images-prod'])
-    gulp.watch('./src/sw.js', ['sw-prod'])
-})
-
 gulp.task('scripts',function(){
     gulp.src('./src/js/**/*.js')
         .pipe(sourcemaps.init())

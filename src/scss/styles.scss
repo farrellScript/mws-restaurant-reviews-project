@@ -221,6 +221,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     position: relative;
     border-radius: 4px;
     padding: 4px 12px;
+    -moz-appearance: none;
   }
   &__selectcontainer {
     position: relative;
