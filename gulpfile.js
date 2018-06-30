@@ -7,6 +7,8 @@ var sourcemaps = require('gulp-sourcemaps')
 var pngquant = require('imagemin-pngquant')
 var imagemin = require('gulp-imagemin')
 var webp = require('gulp-webp')
+const webpack = require('webpack-stream');
+
 
 gulp.task('default',function(){
     gulp.watch('./src/scss/**/*.scss',['styles'])
@@ -39,4 +41,14 @@ gulp.task('images', function() {
             use: [pngquant()]
         }))
         .pipe(gulp.dest('img'))
+});
+gulp.task('sw',function(){
+    return gulp.src('./src/sw.js')
+    .pipe(webpack({
+        watch: true,
+        output: {
+            filename: 'sw.js',
+          },
+    }))
+    .pipe(gulp.dest('./'));
 });
