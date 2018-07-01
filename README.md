@@ -2,46 +2,38 @@
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
-## Project Overview: Stage 1
+## Project Overview: Stage 2
 
-For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage One**, you will take a static design that lacks accessibility and convert the design to be responsive on different sized displays and accessible for screen reader use. You will also add a service worker to begin the process of creating a seamless offline experience for your users.
+For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage Two**, you will improve upon the project that you developed for **Stage One**. In this stage the project will connect to a Node server to retrieve restaurant data rather than a JSON file and the responses from the server will be stored in IndexedDB to allow for offline use. Finally, the project must exceed the specified lighthouse ratings.
 
-### Specification
+### Installation Instructions
 
-You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality. 
+1. Clone the development server provided by Udacity provided at [https://github.com/udacity/mws-restaurant-stage-2] and follow the instructions for installation and startup. 
 
-### Getting Started
+2. Clone this repository with `git clone https://github.com/farrellScript/mws-restaurant-project.git` and change directory into the folder. 
 
-1. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer. 
+3. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer. 
 
 In a terminal, check the version of Python you have: `python -V`. If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
 
-2. With your server running, visit the site: `http://localhost:8000`, and see the site with the updates for **Stage One**.
+4. With your server running, visit the site: `http://localhost:8000`, and see the site with the updates for **Stage Two**.
 
+### Requirements
 
-## Stage One Updates
+#### Application Data and Offline Use
 
-### Responsive Design
+* Application Data Source: In `dbhelper.js` the `DATABASE_URL` function has been updated to make requests to `http://localhost:1337/restaurants`.
 
-* UI compatible with a range of display sizes: The initially provided code was not formated to work well on all device size. Using media queries and flexbox, I approached the project from a mobile first perspective to make sure that the homepage and detail pages worked on all size screens.
+* Offline Use: The fetch event listener in the service worker has been updated to listen for requests to `localhost:1337`. When a fetch request is made to this IndexedDB is checked to see if a previous response to this url has been cached. If it is, the cached version is returned. If it's not, the servers response it put into the cache then returned.
 
-* Responsive Images: I created 1x and 2x versions of each photo and included these in the `src-set` attribute so that the user would see the best version of the photo that their device would support.
+#### Responsive Design
 
-### Accessibility
+* Responsive Design: The application retains it's responsive design from the finished Stage 1 project. The initially provided code was not formated to work well on all device size. Using media queries and flexbox, I approached the project from a mobile first perspective to make sure that the homepage and detail pages worked on all size screens. Responsive images are also used across the site along with the picture tag where it's useful and SVG icons where possible. The SVG icons used in this project were provided by [https://visualpharm.com/] and are free with attibution for open source projects.
 
-* Skip Link: A skip link is included at the top of the header and is offscreen until a user presses the tab. When selected the user is brought down to the restaurant filters and does not have to tab through the map
+* Accessibility: The application retains accessibility features from the Stage 1 project. When checked using the lighthouse accessibility audit this application receives a 100/100 rating.
 
-* Accessibile Images: I added a new key value pair to each restaurant in `restaurants.json` to be used as the alt text for each of the images. Inside of `dbhelper.js` I created a new function that retreives and returns this text.
+#### Performance
 
-* Focus: There is a notication toast that will appear at the bottom right hand side of the screen when a new service worker is available. When this happens, we record the element that had focus in case that's needed later and apply the focus to the text within the toast. Focus is temporarily trapped to prevent the user from tabbing outside of the toast unless the click one of the buttons or press escape.
+* Site Performance: The targets for this stage are a minimum of 90 for the Progressive Web App audit, 70 for the Performance Audit, and 90 for the Accessibility Audit. As seen below, each of these targets was exceeded. 
 
-* ARIA: The maps on the homepage and detail page were given an ARIA role of application along with an ARIA label to describe what that section is. There is a service worker notication toast at the bottom of the page that has an attribute of aria-hidden to prevent it from being reached unless it becomes active.
-
-### Offline Availablility
-
-* Website Available Offline: When the page is visited a service worker is installed and the website content is cached for offline use.
-
-
-
-
-
+![Lighthouse Audit Rating: 82 for Performance, 91 for Progressive Web App, 100 for Accessibility ](./src/img/lighthouse.jpg)
