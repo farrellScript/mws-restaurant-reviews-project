@@ -14,6 +14,8 @@ $blue: #005fc3;
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900');
 
+@import 'leaflet';
+
 * {
   margin: 0;
   padding: 0;
@@ -76,7 +78,6 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 .main {
   background-color: $white;
   min-height: 100%;
-  max-width: 1600px;
   margin: 0 auto;
 }
 // .main--interior {
@@ -364,6 +365,10 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     border: 0;
     position: relative;
   }
+  &__imagecontainer {
+    max-height: 300px;
+    overflow:hidden;
+  }
   &__reviewscontainer {
     padding: 0px;
     margin: 0px auto 0px;
@@ -649,7 +654,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     z-index: 1000;
   }
   .inside #map-container{
-    width: calc(100% - 360px);
+    width: calc(100% - 720px);
     height: calc(100vh - 56px);
     position: fixed;
     max-width: 100%;
@@ -665,7 +670,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 
   }
   .inside #restaurant-container{
-    width: 360px;
+    width: 720px;
     padding: 0;
     margin: 0;
     margin-top: 56px;
@@ -685,7 +690,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 
 @media screen and (min-width:1000px){
   .map__container {
-    width: calc(100% - 360px);
+    width: calc(100% - 720px);
     height: calc(100vh - 56px);
     position: fixed;
     right: 0;
@@ -695,17 +700,8 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     height: 100%;
   }
   .filter__container {
-    width: 360px;
+    width: 720px;
     padding-top: 56px;
-  }
-  .restaurant__container {
-    width: 100%;
-    margin-left: 16px;
-    margin-right: 16px;
-  }
-  .restaurant__container:nth-child(2n) {
-    margin-left: 16px;
-    margin-right: 16px;
   }
   .filter__options {
     margin-bottom: 10px;

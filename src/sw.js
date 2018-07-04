@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mws-v21";
+const staticCacheName = "mws-v13";
 //comment
 const dbPromise = idb.open('mwsrestaurantreviews',1,function(upgradeDb){
     switch(upgradeDb.oldVersion){
@@ -16,13 +16,12 @@ self.addEventListener('install',function(event){
 				'/',
 				'/restaurant.html',
 				'/manifest.json',
-				'/js/app.js',
 				'/js/main.js',
 				'/js/restaurant_info.js',
 				'/js/dbhelper.js',
 				'/js/leaflet.js',
 				'/css/styles.css',
-				'/css/leaflet.scss',
+				'/css/leaflet.css',
 				'/img/avatar.svg',
 				'/img/back.svg',
 				'/img/clock.svg',
@@ -33,16 +32,12 @@ self.addEventListener('install',function(event){
 				'/img/fullstar.svg',
 				'/img/waypoint.svg',
 				'/img/marker-icon.png',
-				'/img/marker-icon2x.png',
+				'/img/marker-icon-2x.png',
 				'/img/marker-shadow.png',
-				'/img/logo-1x.png',
-				'/img/logo-2x.png',
-				'/img/logo-1x.webp',
-				'/img/logo-2x.webp',
-				'/img/undefined-1x.jpg',
-				'/img/undefined-2x.jpg',
-				'/img/undefined-1x.webp',
-				'/img/undefined-2x.webp',
+				'/img/logo_1x.png',
+				'/img/logo_2x.png',
+				'/img/undefined_1x.jpg',
+				'/img/undefined_2x.jpg',
 			]).catch(function(e){
 				console.log('e',e)
 			});
@@ -106,13 +101,10 @@ self.addEventListener('fetch',function(event){
 			)
 		}else{
 			event.respondWith(
-				caches.match(event.request).then(function(response){
-					if(response) return response;
-					return fetch(event.request).catch(function(e){
-						console.log('e',e);
-					});
+				caches.match(event.request).then(function(response) {
+					return response || fetch(event.request);
 				})
-			)
+			);
 		}
 	}
 
