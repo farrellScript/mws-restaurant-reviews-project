@@ -7,9 +7,9 @@
 *  [Project Overview](#project-overview)
 *  [Installation Instructions](#installation-instructions)
 *  [Requirements](#requirements)
--- [Application Data and Offline Use](#application-data-and-offline-use)
--- [Responsive Design](#responsive-design)
---  [Performance](#performance)
+	*  [Application Data and Offline Use](#application-data-and-offline-use)
+	*  [Responsive Design](#responsive-design)
+	*  [Performance](#performance)
 
 ## Project Overview
 
@@ -50,4 +50,4 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
 ### Performance
 
 * Site Performance: The targets for this stage are a minimum of 90 for the Progressive Web App audit, 70 for the Performance Audit, and 90 for the Accessibility Audit. As seen below, each of these targets was exceeded.
-	![Lighthouse Audit Rating ](./src/img/lighthouserating.jpg)
+	![Lighthouse Audit Rating ](./src/img/ligthouserating.jpg)
