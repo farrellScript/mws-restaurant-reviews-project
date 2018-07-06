@@ -82,12 +82,11 @@ const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestauran
     }
 })
 
-// Install event for Service Worker
 self.addEventListener('install',function(event){
 	event.waitUntil(
 		caches.open(staticCacheName)
 		.then(function(cache){
-			// Static assets that will allow the app to run offline
+			// Static Assets to Cache
 			return cache.addAll([
 				'/',
 				'/restaurant.html',
@@ -97,7 +96,6 @@ self.addEventListener('install',function(event){
 				'/js/dbhelper.js',
 				'/js/leaflet.js',
 				'/css/styles.css',
-				'/css/leaflet.css',
 				'/img/avatar.svg',
 				'/img/back.svg',
 				'/img/clock.svg',
@@ -121,7 +119,6 @@ self.addEventListener('install',function(event){
 	)
 })
 
-// Activate event for the service worker
 self.addEventListener('activate', function(event) {
 	event.waitUntil(
 	  caches.keys().then(function(cacheNames) {
@@ -137,24 +134,21 @@ self.addEventListener('activate', function(event) {
 	);
 });
 
-// Fetch event for the service worker
 self.addEventListener('fetch',function(event){
-	// Get the event request url
+	// check the event request url, and if it ends in restaurants set an id that will be used for IndexedDB
 	const requestUrl = new URL(event.request.url);
-	// define and id for requests to the remote server
 	const id = requestUrl.href.endsWith('restaurants') ? "-1" : requestUrl.href.split('/').pop();
-	// Check to see if the fetch request is to the remote server
+	// Check to see if the request is to the remote server
 	if(requestUrl.port === '1337'){
 		event.respondWith(
-			// Check IndexedDB to see if a response for this request has been stored
+			// Check IndexedDB to see if a response for this request is in IndexedDB
 			dbPromise.then(function(db){
 				return db.transaction('restaurants').objectStore('restaurants').get(id);
 			}).then(function(data){
-				// if it is, return what was last stored
+				// If it is, return it otherwise make the fetch request and put it into IndexedDB
 				if(data && data.data){
 					return data.data;
 				}else{
-					// if it's not, make a fetch request and store that in IndexedDB
 					return fetch(event.request).then(function(response){
 						return response.json();
 					}).then(function(json){
@@ -169,26 +163,25 @@ self.addEventListener('fetch',function(event){
 						})
 					});
 				}
+				
 			}).then(function(response){
-				// Return the final response
 				return new Response(JSON.stringify(response));
 			})
 		)
 	}
 	else if(requestUrl.origin === location.origin){
-		// Check to see if the request is to one of the restaurant pages
+		// Check to see if the request is to a restaurant page
 		if(requestUrl.pathname.match('/restaurant.html(.?)')){
 			event.respondWith(
-				// The request is for a restaurant page, check to see if its in the cache otherwise make the fetch request
+				// Check to see if the restaurant page has been cached, if it is return the cached version otherwise get it from the network
 				caches.match('/restaurant.html(.?)').then(function(response){
 					if(response) return response;
 					return fetch(event.request);
 				})
 			)
 		}else{
-			// The request is not to one of the restaurant pages
 			event.respondWith(
-				// Check the cache to see if this is stored, return what's stored if it's there otherwise make the fetch request
+				// Check to see if a response to this has been cached, if it is serve the cached response otherwise make a request to the network
 				caches.match(event.request).then(function(response) {
 					return response || fetch(event.request);
 				})
