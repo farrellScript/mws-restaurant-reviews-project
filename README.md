@@ -15,6 +15,8 @@
 
 For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage Two**, you will improve upon the project that you developed for **Stage One**. In this stage the project will connect to a Node server to retrieve restaurant data rather than a JSON file and the responses from the server will be stored in IndexedDB to allow for offline use. Finally, the project must exceed the specified lighthouse ratings.
 
+This project uses Gulp to optimize static assets. The CSS that I've added is written in Sass and is then transpiled and minified. The JS that I've written is in ES6 and is transpiled with Babel then minified. The service worker is handled separately from the rest of the JS is run through webpack to import IDB. The images are optimized using Imagemin. If needed, the original files can be found in the src directory. 
+
 ## Installation Instructions
 
 1. Clone the development server provided by Udacity provided at [https://github.com/udacity/mws-restaurant-stage-2] and follow the instructions for installation and startup.
