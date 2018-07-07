@@ -638,5 +638,5 @@ setTimeout(function(){
   initMap();
   fetchNeighborhoods();
   fetchCuisines();
-},1000);
+},100);
 
