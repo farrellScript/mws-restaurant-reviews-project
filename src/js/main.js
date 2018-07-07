@@ -244,6 +244,12 @@ class DBHelper {
   }*/
 
 }
+// Create Link Element for Stylesheet
+let myCSS = document.createElement( "link" );
+myCSS.rel = "stylesheet";
+myCSS.href = "/css/leaflet.css";
+// insert it at the end of the head in a legacy-friendly manner
+document.head.insertBefore( myCSS, document.head.childNodes[ document.head.childNodes.length - 1 ].nextSibling );
 
 let restaurants,
   neighborhoods,
