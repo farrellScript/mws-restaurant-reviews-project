@@ -80,9 +80,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   min-height: 100%;
   margin: 0 auto;
 }
-// .main--interior {
-//   margin-top: 56px;
-// }
+
 .footer__container {
   text-align: center;
   padding: 6px 0px;
@@ -161,12 +159,17 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 
 .map {
   &__container {
-
+    background: #ccc;
   }
   &__application {
     height:300px;
     width: 100%;
     background-color: $lightgrey;
+    opacity: 0;
+    transition: all 1000ms cubic-bezier(0.000, 0.100, 0.900, 1.000);
+    &--active {
+      opacity: 1;
+    }
   }
 }
 
@@ -240,6 +243,12 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 
 /* ====================== Restaurant Listing ====================== */
 
+#restaurants-list-ghost{
+  width: 100%;
+  position: absolute;
+  margin-top: -16px;
+}
+
 .restaurantlist {
   &__container {
     background: $white;
@@ -250,14 +259,24 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 .restaurant {
   &__container {
     overflow: hidden;
-    // max-width: 334px;
     width: calc(100% - 32px);
     background-color: white;
     padding: 0px;
     margin: 16px;
     border-radius: 4px;
     box-shadow: 0px 1px 1px #a6a6a6;
+    &--active{
+      animation-delay:1s;
+      animation: fadein 2s;
+      animation-fill-mode: forwards;
+    }
   }
+  
+  @keyframes fadein {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+  }
+  
   &__image {
     width: 100%;
     height: auto;
@@ -621,6 +640,13 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     display: flex;
     flex-wrap: wrap;
   }
+  #restaurants-list-ghost{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    position: absolute;
+    margin-top: 0;
+  }
   .restaurant__container {
     width: calc(50% - 24px);
   }
@@ -643,6 +669,12 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 }
 
 @media screen and (min-width: 1000px){
+  #restaurants-list-ghost{
+    display: flex;
+    flex-wrap: wrap;
+    width: 720px;
+    position: absolute;
+  }
   .main--interior {
     display: flex;
     flex-wrap: wrap;
