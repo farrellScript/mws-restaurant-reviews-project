@@ -23,7 +23,6 @@ gulp.task('scripts',function(){
     gulp.src('./src/js/**/*.js')
         .pipe(sourcemaps.init())
         .pipe(babel())
-        .pipe(uglify())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('./js'))
 })
