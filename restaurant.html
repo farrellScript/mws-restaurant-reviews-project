@@ -53,6 +53,29 @@
       </div>
       <hr class="restaurantdetail__hr"/>
       <section id="reviews-container" class="restaurantdetail__reviewscontainer">
+        <div class="restaurantdetail__postreviewcontainer">
+          <h3 class="restaurantdetail__reviewstitle">Post A Review</h3>
+          <form action="" method="post">
+            <label class="filter__label" for="restaurant-rating">
+            Rating
+            </label>
+            <select class="filter__select" id="restaurant-rating" name="rating">
+              <option></option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+
+            <label class="filter__label" for="restaurant-review">
+            Review
+            </label>
+            <textarea class="filter__select" id="restaurant-review" name="review">
+            </textarea>
+            <input type="submit" value="Submit Review"/>
+          </form>
+        </div>
         <ul id="reviews-list" class="restaurantdetail__reviewlist"></ul>
       </section>
       <!-- Beginning footer -->

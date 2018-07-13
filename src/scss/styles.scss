@@ -265,6 +265,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     margin: 16px;
     border-radius: 4px;
     box-shadow: 0px 1px 1px #a6a6a6;
+    position: relative;
     &--active{
       animation-delay:1s;
       animation: fadein 2s;
@@ -281,8 +282,32 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     width: 100%;
     height: auto;
   }
+  &__likebutton {
+    position: absolute;
+    top: -24px;
+    right: 16px;
+    background-color: $white;
+    height: 42px;
+    width: 42px;
+    border-radius: 21px;
+    box-shadow: 0 1px 4px rgba(57, 63, 72, 0.3);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+  }
+  &__likebuttonimage {
+    width: 24px;
+    fill:white;
+    stroke:black;
+    transition: all 500ms cubic-bezier(0.000, 0.930, 0.125, 1.000); /* custom */
+    &--active {
+      fill:black;
+      stroke:black;
+    }
+  }
   &__textcontainer {
-    padding: 12px
+    padding: 12px;
+    position: relative;
   }
   &__name {
     font-weight: 400;
@@ -387,6 +412,11 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   &__imagecontainer {
     max-height: 300px;
     overflow:hidden;
+  }
+  &__postreviewcontainer {
+    padding: 0;
+    margin: 0 auto;
+    border: 0;
   }
   &__reviewscontainer {
     padding: 0px;
