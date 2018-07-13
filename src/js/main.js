@@ -217,7 +217,6 @@ initMap = () => {
  * Update page and map for current restaurants.
  */
 updateRestaurants = () => {
-  console.log('update')
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
@@ -269,15 +268,15 @@ fillRestaurantsHTML = (restaurants) => {
       if (e.data == 'error') { // Got an error
         console.error(e.data);
       } else {
-        console.log('e.data',e.data)
-        ul.append(createRestaurantHTML(e.data.restaurant, e.data.reviews));
+        ul.append(createRestaurantHTML(e.data.restaurant, e.data.reviews,e.data.webpsrcset, e.data.jpgsrcset, e.data.imagetext, e.data.imageurl, e.data.urltext, e.data.url));
+        addMarkersToMap(e.data.restaurant,e.data.url);
       }
     }, false);
     if(restaurants.length > 1){
       restaurants.forEach(restaurant => {
-        dbWorker.postMessage({action:'createRestaurantHTML', restaurant});
+        dbWorker.postMessage({action:'createRestaurantHTML', restaurant,});
       });
-      addMarkersToMap(restaurants);
+      
     }
 
     
@@ -287,8 +286,7 @@ fillRestaurantsHTML = (restaurants) => {
 /**
  * Create restaurant HTML.
  */
-createRestaurantHTML = (restaurant,reviews) => {
-  console.log('back from worker',restaurant,reviews)
+createRestaurantHTML = (restaurant,reviews,webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url) => {
   // Create a restaurant card
   const li = document.createElement('li');
   li.className = 'restaurant__container';
@@ -299,14 +297,14 @@ createRestaurantHTML = (restaurant,reviews) => {
   
   // Add the first image set to the restaurant card
   const webpimage = document.createElement('source');
-  webpimage.srcset = DBHelper.imageWebPSrcSetForRestaurant(restaurant);
+  webpimage.srcset = webpsrcset;
   webpimage.className = 'restaurant__image';
   webpimage.type = 'image/webp';
   picture.append(webpimage);
 
   // // Add the first image set to the restaurant card
   const jpgimage = document.createElement('source');
-  jpgimage.srcset = DBHelper.imageJpgSrcSetForRestaurant(restaurant);
+  jpgimage.srcset = jpgsrcset;
   jpgimage.className = 'restaurant__image';
   jpgimage.type = 'image/jpeg';
   picture.append(jpgimage);
@@ -314,8 +312,8 @@ createRestaurantHTML = (restaurant,reviews) => {
   // Add the first image set to the restaurant card
   const image = document.createElement('img');
   image.className = 'restaurant__image';
-  image.alt = DBHelper.imageTextForRestaurant(restaurant);
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.alt = imagetext;
+  image.src = imageurl;
   picture.append(image);
 
   li.append(picture);
@@ -424,8 +422,8 @@ createRestaurantHTML = (restaurant,reviews) => {
   // Link to the restaurant
   const more = document.createElement('a');
   more.className = "restaurant__link"
-  more.innerHTML = DBHelper.urlTextForRestaurant(restaurant);
-  more.href = DBHelper.urlForRestaurant(restaurant);
+  more.innerHTML = urltext;
+  more.href = url;
   lowercontainer.append(more)
 
   // Add lower container to the card
@@ -433,18 +431,29 @@ createRestaurantHTML = (restaurant,reviews) => {
   return li
 }
 
+mapMarkerForRestaurant = (restaurant, map,url)=>{
+  // https://leafletjs.com/reference-1.3.0.html#marker  
+  const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+    {title: restaurant.name,
+    alt: restaurant.name,
+    url: url
+    });
+    marker.addTo(newMap);
+  return marker;
+} 
+
 /**
  * Add markers for current restaurants to the map.
  */
-addMarkersToMap = (restaurants) => {
-  restaurants.forEach(restaurant => {
+addMarkersToMap = (restaurant,url) => {
+
     // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
+    const marker = mapMarkerForRestaurant(restaurant, self.newMap,url);
     marker.on("click", onClick);
     function onClick() {
       window.location.href = marker.options.url;
     }
-  });
+
 } 
 
 document.getElementById('neighborhoods-select').addEventListener('focus',function(){

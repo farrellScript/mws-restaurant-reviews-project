@@ -53,7 +53,13 @@ self.addEventListener('message', function(e) {
 
             break; 
         case 'createRestaurantHTML':
-
+            const restaurant = e.data.restaurant;
+            const webpsrcset = DBHelper.imageWebPSrcSetForRestaurant(restaurant);
+            const jpgsrcset = DBHelper.imageJpgSrcSetForRestaurant(restaurant);
+            const imagetext = DBHelper.imageTextForRestaurant(restaurant);
+            const imageurl = DBHelper.imageUrlForRestaurant(restaurant);
+            const urltext = DBHelper.urlTextForRestaurant(restaurant)
+            const url = DBHelper.urlForRestaurant(restaurant)
             const fetchResults = fetch(`http://localhost:1337/restaurants/${e.data.restaurant.id}`)
                 .then((res)=>{
                     return res.json();
@@ -74,8 +80,8 @@ self.addEventListener('message', function(e) {
                     })
                     return Math.round(sum/total);
                 })
-            Promise.all([fetchResults,fetchReviews]).then((values)=>{
-                self.postMessage({'restaurant':values[0], 'reviews': values[1]});
+            Promise.all([fetchResults,fetchReviews,webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url]).then((values)=>{
+                self.postMessage({'restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
             })
             break;
         default:
