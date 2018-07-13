@@ -126,6 +126,7 @@ class DBHelper {
         reviews++;
         total = total + parseInt(item.rating)
       })
+      console.log('review ',total/reviews)
       return (Math.round(total/reviews));
     })
 

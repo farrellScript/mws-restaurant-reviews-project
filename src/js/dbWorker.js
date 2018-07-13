@@ -66,14 +66,17 @@ self.addEventListener('message', function(e) {
                     return res.json();
                 })
                 .then((results)=>{
-                    return results
+                    let total = 0;
+                    let sum = 0;
+                    results.map((item)=>{
+                        total += 1;
+                        sum += parseInt(item.rating)
+                    })
+                    return Math.round(sum/total);
                 })
             Promise.all([fetchResults,fetchReviews]).then((values)=>{
-                self.postMessage({'results':values[0], 'reviews':values[1]});
+                self.postMessage({'restaurant':values[0], 'reviews': values[1]});
             })
-
-
-            
             break;
         default:
           console.log('none of the above')
