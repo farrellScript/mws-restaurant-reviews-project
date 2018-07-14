@@ -84,6 +84,24 @@ self.addEventListener('message', function(e) {
                 self.postMessage({'restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
             })
             break;
+        case 'fetchRestaurantById':
+            DBHelper.fetchRestaurantById(e.data.id, (error, restaurant) => {
+                if (!restaurant) {
+                    console.error(error);
+                    return;
+                }
+                self.postMessage({restaurant});
+            });
+            break;
+        case 'fillReviewsHTML':
+            // make ajax request to get reviews for a given restaurant
+            fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
+                .then((res)=>{
+                    return res.json();
+                })
+                .then((results)=>{
+                    self.postMessage({reviews:results});
+                });
         default:
           console.log('none of the above')
     }

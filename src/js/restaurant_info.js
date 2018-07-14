@@ -5,132 +5,149 @@ myCSS.href = "/css/leaflet.css";
 // insert it at the end of the head in a legacy-friendly manner
 document.head.insertBefore( myCSS, document.head.childNodes[ document.head.childNodes.length - 1 ].nextSibling ); 
 
+const dbWorker = new Worker('./js/dbworker.js');
+
 let restaurant;
 var newMap;
 
-/**
- * Check to see if service worker is supported by the browser 
- */
-if ('serviceWorker' in navigator) {
+// /**
+//  * Check to see if service worker is supported by the browser 
+//  */
+// if ('serviceWorker' in navigator) {
   
-  /* if it is, register the service worker */
-  navigator.serviceWorker.register('/sw.js').then(function(res){
+//   /* if it is, register the service worker */
+//   navigator.serviceWorker.register('/sw.js').then(function(res){
 
-    // Already on the latest version, bail
-    if(!navigator.serviceWorker.controller){
-      return;
-    }
-    // Check to see if there's a waiting service worker
-    if (res.waiting){
-      _updateReady();
-      return 
-    }
+//     // Already on the latest version, bail
+//     if(!navigator.serviceWorker.controller){
+//       return;
+//     }
+//     // Check to see if there's a waiting service worker
+//     if (res.waiting){
+//       _updateReady();
+//       return 
+//     }
 
-    if (res.installing) {
-      _trackInstalling(res.installing);
-      return;
-    }
+//     if (res.installing) {
+//       _trackInstalling(res.installing);
+//       return;
+//     }
     
-    res.addEventListener('updatefound', function() {
-      _trackInstalling(res.installing);
-    });
+//     res.addEventListener('updatefound', function() {
+//       _trackInstalling(res.installing);
+//     });
     
-  }).catch(function(error){
-    console.log('error registering service worker: ',error)
-  });
+//   }).catch(function(error){
+//     console.log('error registering service worker: ',error)
+//   });
   
-  function _trackInstalling(worker){
-    worker.addEventListener('statechange',function(){
-      if (worker.state == 'installed'){
-        _updateReady(worker);
-      }
-    })
-  }
+//   function _trackInstalling(worker){
+//     worker.addEventListener('statechange',function(){
+//       if (worker.state == 'installed'){
+//         _updateReady(worker);
+//       }
+//     })
+//   }
 
-  var focusedElement;
-  /**
-   * Notifies the user that an updated SW is available
-   */
-  function _updateReady(worker){
-    // If the user clicks on the update button, update the service worker
-    document.getElementById('update-version').addEventListener('click',function(){
-      worker.postMessage({action:'skipWaiting'});
-    });
-    // If the user clicks the dismiss button, hide the toast
-    document.getElementById('dismiss-version').addEventListener('click',function(){
-      document.getElementById('toast').classList.remove('active');
-      focusedElement.focus()
-    });
-    // If the toast is displaying, listen for keyboard events
-    document.getElementById('toast').addEventListener('keydown',function(e){
-      //Check for Tab key press
-      if(e.keyCode === 9){
+//   var focusedElement;
+//   /**
+//    * Notifies the user that an updated SW is available
+//    */
+//   function _updateReady(worker){
+//     // If the user clicks on the update button, update the service worker
+//     document.getElementById('update-version').addEventListener('click',function(){
+//       worker.postMessage({action:'skipWaiting'});
+//     });
+//     // If the user clicks the dismiss button, hide the toast
+//     document.getElementById('dismiss-version').addEventListener('click',function(){
+//       document.getElementById('toast').classList.remove('active');
+//       focusedElement.focus()
+//     });
+//     // If the toast is displaying, listen for keyboard events
+//     document.getElementById('toast').addEventListener('keydown',function(e){
+//       //Check for Tab key press
+//       if(e.keyCode === 9){
         
-        if (e.shiftKey) {
-          //Pressed Shift Tab
-          if(document.activeElement === firstTabStop) {
-            e.preventDefault();
-            lastTabStop.focus();
-          }
-        }else{
-          //Pressed Tab
-          if(document.activeElement === lastTabStop) {
-            e.preventDefault();
-            firstTabStop.focus();
-          }
-        }
-      }
-      // Escape Key
-      if (e.keyCode === 27){
-        document.getElementById('toast').classList.remove('active');
-        focusedElement.focus()
-      } 
-    });
+//         if (e.shiftKey) {
+//           //Pressed Shift Tab
+//           if(document.activeElement === firstTabStop) {
+//             e.preventDefault();
+//             lastTabStop.focus();
+//           }
+//         }else{
+//           //Pressed Tab
+//           if(document.activeElement === lastTabStop) {
+//             e.preventDefault();
+//             firstTabStop.focus();
+//           }
+//         }
+//       }
+//       // Escape Key
+//       if (e.keyCode === 27){
+//         document.getElementById('toast').classList.remove('active');
+//         focusedElement.focus()
+//       } 
+//     });
 
-    // Remember what the last element that was focused was, and make it focusable so we can return to it
-    focusedElement = document.activeElement;
-    focusedElement.tabindex = 1;
+//     // Remember what the last element that was focused was, and make it focusable so we can return to it
+//     focusedElement = document.activeElement;
+//     focusedElement.tabindex = 1;
    
-    // When the toast is visible, this is what we'll use to temporarily trap focus
-    var focusableElementsString = '#toast p, #update-version, #dismiss-version';
-    var focusableElements = document.querySelectorAll(focusableElementsString);
-    focusableElements = Array.prototype.slice.call(focusableElements);
+//     // When the toast is visible, this is what we'll use to temporarily trap focus
+//     var focusableElementsString = '#toast p, #update-version, #dismiss-version';
+//     var focusableElements = document.querySelectorAll(focusableElementsString);
+//     focusableElements = Array.prototype.slice.call(focusableElements);
     
-    var firstTabStop = focusableElements[0];
-    var lastTabStop = focusableElements[focusableElements.length -1];
+//     var firstTabStop = focusableElements[0];
+//     var lastTabStop = focusableElements[focusableElements.length -1];
 
-    // Ok time to show the toast and focus on it
-    document.getElementById('toast').classList.add('active');
-    document.querySelector('#toast p').focus();
+//     // Ok time to show the toast and focus on it
+//     document.getElementById('toast').classList.add('active');
+//     document.querySelector('#toast p').focus();
 
-  }
+//   }
   
 
-  /**
-   * Listens for a change in the SW, reloads the page as a result
-   */
-  var refreshing;
-  navigator.serviceWorker.addEventListener('controllerchange', function() {
-    console.log('controller change')
-    if (refreshing) return;
-    window.location.reload();
-    refreshing = true;
-  });
-}
-
-
-
-/**
-  * Initialize map as soon as the page is loaded.
- */
-document.addEventListener('DOMContentLoaded', (event) => {  
-  initMap();
-  });
+//   /**
+//    * Listens for a change in the SW, reloads the page as a result
+//    */
+//   var refreshing;
+//   navigator.serviceWorker.addEventListener('controllerchange', function() {
+//     console.log('controller change')
+//     if (refreshing) return;
+//     window.location.reload();
+//     refreshing = true;
+//   });
+// }
   
   /**
    * Initialize leaflet map
    */
   initMap = () => {
+  // const id = getParameterByName('id');
+  // dbWorker.addEventListener('message', function(e) {
+  //   if (e.data == 'error') { // Got an error
+  //     console.error(e.data);
+  //   } else {
+  //     self.newMap = L.map('map', {
+  //       center: [e.data.restaurant.latlng.lat, e.data.restaurant.latlng.lng],
+  //       zoom: 16,
+  //       scrollWheelZoom: false
+  //     });
+  //     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
+  //       mapboxToken: 'pk.eyJ1IjoiZmFycmVsbHNjcmlwdCIsImEiOiJjamJiaTl3dHMxOGxsMzJwZTlmYnN4ZHN5In0.6Ey50el0atwjDygO_cO0sA',
+  //       maxZoom: 18,
+  //       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+  //         '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+  //         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  //       id: 'mapbox.streets'    
+  //     }).addTo(newMap);
+  //     mapMarkerForRestaurant(e.data.restaurant, self.newMap);
+  //   }
+  // }, false);
+  // dbWorker.postMessage({action:'fetchRestaurantById', id});
+
+
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
@@ -148,13 +165,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
           'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         id: 'mapbox.streets'    
       }).addTo(newMap);
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+      mapMarkerForRestaurant(restaurant, self.newMap);
     }
   });
   }  
-  
-  /* window.initMap = () => {
-  } */
+
+  /**
+   * Get the map marker for the restaurant
+   */
+  mapMarkerForRestaurant = (restaurant, map)=>{
+    // https://leafletjs.com/reference-1.3.0.html#marker  
+    const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+      {title: restaurant.name,
+      alt: restaurant.name
+      });
+      marker.addTo(newMap);
+    return marker;
+  } 
 
 /**
  * Get current restaurant from page URL.
@@ -169,22 +196,36 @@ fetchRestaurantFromURL = (callback) => {
     error = 'No restaurant id in URL'
     callback(error, null);
   } else {
-    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-      self.restaurant = restaurant;
-      if (!restaurant) {
-        console.error(error);
-        return;
+    // DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+    //   self.restaurant = restaurant;
+    //   if (!restaurant) {
+    //     console.error(error);
+    //     return;
+    //   }
+    //   fillRestaurantHTML();
+    //   callback(null, restaurant)
+    // });
+    // Comment
+    dbWorker.addEventListener('message', function(e) {
+      if (e.data == 'error') { // Got an error
+        console.error(e.data);
+      } else {
+        console.log('got back: ',e.data.restaurant)
+        if(e.data.restaurant){
+          fillRestaurantHTML(e.data.restaurant);
+          callback(null, e.data.restaurant);
+        }
       }
-      fillRestaurantHTML();
-      callback(null, restaurant)
-    });
-  }
+    }, false);
+    dbWorker.postMessage({action:'fetchRestaurantById', id});
+    }    
 }
 
 /**
  * Create restaurant HTML and add it to the webpage
  */
-fillRestaurantHTML = (restaurant = self.restaurant) => {
+fillRestaurantHTML = (restaurant) => {
+  console.log('restaurant',restaurant)
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -232,7 +273,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   // fill operating hours
   if (restaurant.operating_hours) {
-    fillRestaurantHoursHTML();
+    fillRestaurantHoursHTML(restaurant.operating_hours);
 
     const hours = document.getElementById('restaurantdetail__hourscontainer');
   
@@ -244,13 +285,22 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   }
   // fill reviews
-  fillReviewsHTML();
+  
+  dbWorker.addEventListener('message', function(e) {
+    if (e.data == 'error') { // Got an error
+      console.error(e.data);
+    } else {
+      console.log('got back: ',e.data.reviews)
+      fillReviewsHTML(e.data.reviews);
+    }
+  }, false);
+  dbWorker.postMessage({action:'fillReviewsHTML', id:restaurant.id});
 }
 
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
  */
-fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
+fillRestaurantHoursHTML = (operatingHours) => {
   const hours = document.getElementById('restaurant-hours');
   for (let key in operatingHours) {
     const row = document.createElement('tr');
@@ -272,7 +322,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
@@ -372,3 +422,11 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+/**
+  * Initialize map as soon as the page is loaded.
+ */
+setTimeout(()=>{
+  initMap();
+},100) 
+  
