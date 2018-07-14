@@ -395,7 +395,7 @@ createReviewHTML = (review) => {
   rightdiv.appendChild(individualrating);
   const date = document.createElement('p');
   date.className = 'restaurantdetail__reviewdate'
-  const reviewdate = new Date(review.date);
+  const reviewdate = new Date(review.createdAt);
   const todaydate = new Date();
   // Subtract todays date from the date of the review, then format into days
   const daysdifference = Math.round((todaydate - reviewdate)/1000/60/60/24)
