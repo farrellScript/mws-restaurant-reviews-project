@@ -212,7 +212,7 @@ fetchRestaurantFromURL = (callback) => {
       } else {
         console.log('got back: ',e.data.restaurant)
         if(e.data.restaurant){
-          fillRestaurantHTML(e.data.restaurant);
+          fillRestaurantHTML(e.data.restaurant,e.data.reviews);
           callback(null, e.data.restaurant);
         }
       }
@@ -224,28 +224,33 @@ fetchRestaurantFromURL = (callback) => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
-fillRestaurantHTML = (restaurant) => {
+fillRestaurantHTML = (restaurant,reviews) => {
   console.log('restaurant',restaurant)
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
   // Review of the restaurant
   const rating = document.getElementById('rating');
-  const emptyStars = 5 - DBHelper.ratingForRestaurant(restaurant);
-  for(let i=0; i < DBHelper.ratingForRestaurant(restaurant); i++){
-    const fullstar = document.createElement('img');
-    fullstar.className="restaurant__star restaurant__star--full";
-    fullstar.src = "/img/fullstar.svg";
-    fullstar.alt = ""
-    rating.append(fullstar);
+
+
+  let emptyhearts = 5 - reviews;
+  
+  for(let i=0; i < reviews; i++){
+    const emptystar = document.createElement('img');
+    emptystar.className="restaurant__star restaurant__star--full";
+    emptystar.src = "/img/fullstar.svg";
+    emptystar.alt= ""
+    rating.append(emptystar);
   }
-  for(let i=0; i < emptyStars; i++){
+
+  for(let i=0; i < emptyhearts; i++){
     const emptystar = document.createElement('img');
     emptystar.className="restaurant__star restaurant__star--empty";
     emptystar.src = "/img/emptystar.svg";
     emptystar.alt= ""
     rating.append(emptystar);
   }
+
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;

@@ -85,12 +85,28 @@ self.addEventListener('message', function(e) {
             })
             break;
         case 'fetchRestaurantById':
-            DBHelper.fetchRestaurantById(e.data.id, (error, restaurant) => {
-                if (!restaurant) {
-                    console.error(error);
-                    return;
-                }
-                self.postMessage({restaurant});
+            const restaurantDetails = fetch(`http://localhost:1337/restaurants/${e.data.id}`)
+                .then((res)=>{
+                    return res.json();
+                }).then((res)=>{
+                    return res;
+                });
+            const restaurantReviews = fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
+                .then((res)=>{
+                    return res.json();
+                })
+                .then((results)=>{
+                    let total = 0;
+                    let sum = 0;
+                    results.map((item)=>{
+                        total += 1;
+                        sum += parseInt(item.rating)
+                    })
+                    return Math.round(sum/total);
+                })
+            Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
+                console.log('values',values)
+                self.postMessage({'restaurant':values[0], 'reviews': values[1]});
             });
             break;
         case 'fillReviewsHTML':

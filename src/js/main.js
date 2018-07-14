@@ -374,7 +374,6 @@ createRestaurantHTML = (restaurant,reviews,webpsrcset, jpgsrcset, imagetext,imag
   rating.className = 'restaurant__reviewcontainer';
   let emptyhearts = 5 - reviews;
   
-  
 
   for(let i=0; i < reviews; i++){
     const emptystar = document.createElement('img');
