@@ -50,12 +50,43 @@
       <section class="restaurantdetail__reviewscontainer">
         <h3 class="restaurantdetail__reviewstitle">Leave A Review</h3>
         <form class="restaurantdetails__reviewform">
+          
           <div class="restaurantdetail__ratingcontainer">
-              <label>Rating</label>
+              <label class="restaurantdetail__ratinglabel">Rating</label>
+              <div class="restaurantdetail__starscontainer">
+                <span class="restaurantdetail__starcontainer">
+                    <span class="restaurantdetail__star" data-value="1">
+                    </span>
+                </span>
+                <span class="restaurantdetail__starcontainer">
+                    <span class="restaurantdetail__star" data-value="2">
+                    </span>
+                </span>
+                <span class="restaurantdetail__starcontainer">
+                    <span class="restaurantdetail__star" data-value="3">
+                    </span>
+                </span>
+                <span class="restaurantdetail__starcontainer">
+                    <span class="restaurantdetail__star" data-value="4">
+                    </span>
+                </span>
+                <span class="restaurantdetail__starcontainer">
+                    <span class="restaurantdetail__star" data-value="5">
+                    </span>
+                </span>
+              </div>
+              <input type="hidden" name="restaurant-rating"/>
+          </div>
+          <div class="restaurantdetail__reviewnamecontainer">
+              <label class="restaurantdetail__reviewnamelabel">Name</label>
+              <input class="restaurantdetail__reviewnameinput">
           </div>
           <div class="restaurantdetail__ratingcontainer">
-              <label class="restaurantdetails__reviewlabel">Review</label>
-              <textarea class="restaurantdetails__reviewinput"></textarea>
+              <label class="restaurantdetail__reviewlabel">Review</label>
+              <textarea class="restaurantdetail__reviewinput"></textarea>
+          </div>
+          <div class="restaurantdetail__submitcontainer">
+              <input type="submit" value="Submit Review" aria-label="Submit Review" class="restaurantdetail__reviewsubmitbutton"/>
           </div>
           
         </form>

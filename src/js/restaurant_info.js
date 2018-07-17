@@ -429,6 +429,58 @@ getParameterByName = (name, url) => {
 }
 
 /**
+ * Event listeners for review form
+ */
+
+document.querySelector('.restaurantdetail__reviewinput').addEventListener('focus',function(){
+  this.previousElementSibling.classList.add('restaurantdetail__reviewlabel--active')
+})
+
+document.querySelector('.restaurantdetail__reviewinput').addEventListener('blur',function(){
+  if(this.value === ''){
+    this.previousElementSibling.classList.remove('restaurantdetail__reviewlabel--active')
+  }
+})
+
+document.querySelector('.restaurantdetail__reviewnameinput').addEventListener('focus',function(){
+  this.previousElementSibling.classList.add('restaurantdetail__reviewnamelabel--active')
+})
+
+document.querySelector('.restaurantdetail__reviewnameinput').addEventListener('blur',function(){
+  if(this.value === ''){
+    this.previousElementSibling.classList.remove('restaurantdetail__reviewnamelabel--active')
+  }
+})
+
+const hoverlinks = document.querySelectorAll('.restaurantdetail__star')
+
+for (var i = 0; i < hoverlinks.length; i++) {
+  hoverlinks[i].addEventListener('click', function (event) {
+
+    const highlightedStars = document.querySelectorAll('.restaurantdetail__star')
+    const starLimit = this.getAttribute('data-value');
+
+    for (var i = 1; i <= highlightedStars.length; i++) {
+      if(i <= starLimit){
+        document.querySelector(`.restaurantdetail__star[data-value="${i}"]`).classList.add('restaurantdetail__star--active')
+      }else{
+        document.querySelector(`.restaurantdetail__star[data-value="${i}"]`).classList.remove('restaurantdetail__star--active')
+      }
+    }
+  })
+}
+
+// document.querySelector('cuisines-select').addEventListener('focus',function(){
+//   this.previousElementSibling.classList.add('filter__label--active');
+// }) 
+
+// document.querySelector('cuisines-select').addEventListener('blur',function(){
+//   if(this.value === 'all'){
+//     this.previousElementSibling.classList.remove('filter__label--active');
+//   }
+// })
+
+/**
   * Initialize map as soon as the page is loaded.
  */
 setTimeout(()=>{
