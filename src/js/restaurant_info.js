@@ -226,8 +226,12 @@ fetchRestaurantFromURL = (callback) => {
  */
 fillRestaurantHTML = (restaurant,reviews) => {
   console.log('restaurant',restaurant)
-  const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
+  
+  const name = document.getElementById('restaurantdetail__id');
+  name.value = restaurant.id;
+
+  const id = document.getElementById('restaurant-name');
+  id.innerHTML = restaurant.name;
 
   // Review of the restaurant
   const rating = document.getElementById('rating');
@@ -329,10 +333,6 @@ fillRestaurantHoursHTML = (operatingHours) => {
  */
 fillReviewsHTML = (reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h3');
-  title.innerHTML = 'Reviews';
-  title.className = 'restaurantdetail__reviewstitle';
-  container.appendChild(title);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -341,7 +341,8 @@ fillReviewsHTML = (reviews) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
+  ul.innerHTML = '';
+  reviews.reverse().forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
@@ -399,7 +400,7 @@ createReviewHTML = (review) => {
   const todaydate = new Date();
   // Subtract todays date from the date of the review, then format into days
   const daysdifference = Math.round((todaydate - reviewdate)/1000/60/60/24)
-  date.innerHTML = `${daysdifference} ago`;
+  date.innerHTML = `${daysdifference} days ago`;
   rightdiv.appendChild(date);
 
   commentHeader.appendChild(rightdiv); 
@@ -434,39 +435,69 @@ getParameterByName = (name, url) => {
 
 document.querySelector('.restaurantdetail__reviewinput').addEventListener('focus',function(){
   this.previousElementSibling.classList.add('restaurantdetail__reviewlabel--active')
-})
+});
 
 document.querySelector('.restaurantdetail__reviewinput').addEventListener('blur',function(){
   if(this.value === ''){
     this.previousElementSibling.classList.remove('restaurantdetail__reviewlabel--active')
   }
-})
+});
 
 document.querySelector('.restaurantdetail__reviewnameinput').addEventListener('focus',function(){
   this.previousElementSibling.classList.add('restaurantdetail__reviewnamelabel--active')
-})
+});
 
 document.querySelector('.restaurantdetail__reviewnameinput').addEventListener('blur',function(){
   if(this.value === ''){
     this.previousElementSibling.classList.remove('restaurantdetail__reviewnamelabel--active')
   }
-})
+});
+
+document.querySelector('.restaurantdetails__reviewform').addEventListener('submit',function(e){
+  e.preventDefault();
+  let restaurantid = document.querySelector('.restaurantdetail__id').value;
+  let rating = document.querySelector('.restaurantdetail__star--selected').getAttribute('data-value');
+  let name = document.querySelector('.restaurantdetail__reviewnameinput').value;
+  let comment = document.querySelector('.restaurantdetail__reviewinput').value;
+
+  let data = {
+    "restaurant_id": parseInt(restaurantid),
+    "name": name,
+    "rating": parseInt(rating),
+    "comments": comment,
+    "createdAt":new Date().getTime(),
+    "updatedAt":new Date().getTime()
+  };
+
+  fetch(`http://localhost:1337/reviews/`,{
+    method: 'post',
+    body: JSON.stringify(data),
+    headers:{
+      'Content-Type': 'application/json'
+    }
+  }).then((response)=>{
+      return response.json();
+    }).then((response)=>{
+      dbWorker.postMessage({action:'fillReviewsHTML', id:restaurantid});
+    });
+});
 
 const hoverlinks = document.querySelectorAll('.restaurantdetail__star')
 
 for (var i = 0; i < hoverlinks.length; i++) {
   hoverlinks[i].addEventListener('click', function (event) {
-
     const highlightedStars = document.querySelectorAll('.restaurantdetail__star')
     const starLimit = this.getAttribute('data-value');
 
     for (var i = 1; i <= highlightedStars.length; i++) {
+      document.querySelector(`.restaurantdetail__star[data-value="${i}"]`).classList.remove('restaurantdetail__star--selected')
       if(i <= starLimit){
         document.querySelector(`.restaurantdetail__star[data-value="${i}"]`).classList.add('restaurantdetail__star--active')
       }else{
         document.querySelector(`.restaurantdetail__star[data-value="${i}"]`).classList.remove('restaurantdetail__star--active')
       }
     }
+    document.querySelector(`.restaurantdetail__star[data-value="${starLimit}"]`).classList.add('restaurantdetail__star--selected')
   })
 }
 
