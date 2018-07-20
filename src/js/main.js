@@ -22,113 +22,113 @@ var markers = []
 /**
  * Check to see if service worker is supported by the browser 
  */
-// if('serviceWorker' in navigator) {
-//   // Comment
-//   /* if it is, register the service worker */
-//   navigator.serviceWorker.register('/sw.js').then(function(res){
+if('serviceWorker' in navigator) {
+  // Comment
+  /* if it is, register the service worker */
+  navigator.serviceWorker.register('/sw.js').then(function(res){
 
-//     // Already on the latest version, bail
-//     if(!navigator.serviceWorker.controller){
-//       return;
-//     }
-//     // Check to see if there's a waiting service worker
-//     if (res.waiting){
-//       _updateReady();
-//       return 
-//     }
+    // Already on the latest version, bail
+    if(!navigator.serviceWorker.controller){
+      return;
+    }
+    // Check to see if there's a waiting service worker
+    if (res.waiting){
+      _updateReady();
+      return 
+    }
 
-//     if (res.installing) {
-//       _trackInstalling(res.installing);
-//       return;
-//     }
+    if (res.installing) {
+      _trackInstalling(res.installing);
+      return;
+    }
     
-//     res.addEventListener('updatefound', function() {
-//       _trackInstalling(res.installing);
-//     });
+    res.addEventListener('updatefound', function() {
+      _trackInstalling(res.installing);
+    });
     
-//   }).catch(function(error){
-//     console.log('error registering service worker: ',error)
-//   });
+  }).catch(function(error){
+    console.log('error registering service worker: ',error)
+  });
   
-//   function _trackInstalling(worker){
-//     worker.addEventListener('statechange',function(){
-//       if (worker.state == 'installed'){
-//         _updateReady(worker);
-//       }
-//     })
-//   }
+  function _trackInstalling(worker){
+    worker.addEventListener('statechange',function(){
+      if (worker.state == 'installed'){
+        _updateReady(worker);
+      }
+    })
+  }
 
-//   var focusedElement;
-//   /**
-//    * Notifies the user that an updated SW is available
-//    */
-//   function _updateReady(worker){
-//     // If the user clicks on the update button, update the service worker
-//     document.getElementById('update-version').addEventListener('click',function(){
-//       worker.postMessage({action:'skipWaiting'});
-//     });
-//     // If the user clicks the dismiss button, hide the toast
-//     document.getElementById('dismiss-version').addEventListener('click',function(){
-//       document.getElementById('toast').classList.remove('active');
-//       focusedElement.focus()
-//     });
-//     // If the toast is displaying, listen for keyboard events
-//     document.getElementById('toast').addEventListener('keydown',function(e){
-//       //Check for Tab key press
-//       if(e.keyCode === 9){
+  var focusedElement;
+  /**
+   * Notifies the user that an updated SW is available
+   */
+  function _updateReady(worker){
+    // If the user clicks on the update button, update the service worker
+    document.getElementById('update-version').addEventListener('click',function(){
+      worker.postMessage({action:'skipWaiting'});
+    });
+    // If the user clicks the dismiss button, hide the toast
+    document.getElementById('dismiss-version').addEventListener('click',function(){
+      document.getElementById('toast').classList.remove('active');
+      focusedElement.focus()
+    });
+    // If the toast is displaying, listen for keyboard events
+    document.getElementById('toast').addEventListener('keydown',function(e){
+      //Check for Tab key press
+      if(e.keyCode === 9){
         
-//         if (e.shiftKey) {
-//           //Pressed Shift Tab
-//           if(document.activeElement === firstTabStop) {
-//             e.preventDefault();
-//             lastTabStop.focus();
-//             console.log('current focus :',document.activeElement)
-//           }
-//         }else{
-//           //Pressed Tab
-//           if(document.activeElement === lastTabStop) {
-//             e.preventDefault();
-//             firstTabStop.focus();
-//           }
-//         }
-//       }
-//       // Escape Key
-//       if (e.keyCode === 27){
-//         document.getElementById('toast').classList.remove('active');
-//         focusedElement.focus()
-//       } 
-//     });
+        if (e.shiftKey) {
+          //Pressed Shift Tab
+          if(document.activeElement === firstTabStop) {
+            e.preventDefault();
+            lastTabStop.focus();
+            console.log('current focus :',document.activeElement)
+          }
+        }else{
+          //Pressed Tab
+          if(document.activeElement === lastTabStop) {
+            e.preventDefault();
+            firstTabStop.focus();
+          }
+        }
+      }
+      // Escape Key
+      if (e.keyCode === 27){
+        document.getElementById('toast').classList.remove('active');
+        focusedElement.focus()
+      } 
+    });
 
-//     // Remember what the last element that was focused was, and make it focusable so we can return to it
-//     focusedElement = document.activeElement;
-//     focusedElement.tabindex = 1;
+    // Remember what the last element that was focused was, and make it focusable so we can return to it
+    focusedElement = document.activeElement;
+    focusedElement.tabindex = 1;
    
-//     // When the toast is visible, this is what we'll use to temporarily trap focus
-//     var focusableElementsString = '#toast p, #update-version, #dismiss-version';
-//     var focusableElements = document.querySelectorAll(focusableElementsString);
-//     focusableElements = Array.prototype.slice.call(focusableElements);
+    // When the toast is visible, this is what we'll use to temporarily trap focus
+    var focusableElementsString = '#toast p, #update-version, #dismiss-version';
+    var focusableElements = document.querySelectorAll(focusableElementsString);
+    focusableElements = Array.prototype.slice.call(focusableElements);
     
-//     var firstTabStop = focusableElements[0];
-//     var lastTabStop = focusableElements[focusableElements.length -1];
+    var firstTabStop = focusableElements[0];
+    var lastTabStop = focusableElements[focusableElements.length -1];
 
-//     // Ok time to show the toast and focus on it
-//     document.getElementById('toast').classList.add('active');
-//     document.querySelector('#toast p').focus();
+    // Ok time to show the toast and focus on it
+    document.getElementById('toast').classList.add('active');
+    document.querySelector('#toast p').focus();
 
-//   }
+  }
   
 
-//   /**
-//    * Listens for a change in the SW, reloads the page as a result
-//    */
-//   var refreshing;
-//   navigator.serviceWorker.addEventListener('controllerchange', function() {
-//     console.log('controller change')
-//     if (refreshing) return;
-//     window.location.reload();
-//     refreshing = true;
-//   });
-// }
+  /**
+   * Listens for a change in the SW, reloads the page as a result
+   */
+  var refreshing;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    console.log('controller change')
+    if (refreshing) return;
+    window.location.reload();
+    refreshing = true;
+  });
+}
 
 
 /**
@@ -482,5 +482,5 @@ setTimeout(function(){
   initMap();
   fetchNeighborhoods();
   fetchCuisines();
-},100);
+},500);
 
