@@ -192,7 +192,6 @@ self.addEventListener('message', function(e) {
             });
             break;
         case 'fillReviewsHTML':
-        console.log('return reviews',e.data)
             // make ajax request to get reviews for a given restaurant
             fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
                 .then((res)=>{
