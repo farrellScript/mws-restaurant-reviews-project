@@ -74,6 +74,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 importScripts('./dbhelper.js');
 
 
+// Versioning of the IndexedDB database, to be used if the database needs to change
+const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
+    switch(upgradeDb.oldVersion){
+        case 0:
+            upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
+        case 1:
+            upgradeDb.createObjectStore('reviews',{keyPath:'id'});
+    }
+})
+
 self.addEventListener('message', function(e) {
     switch(e.data.action){
         case 'fetchNeighborhoods':
@@ -112,9 +122,7 @@ self.addEventListener('message', function(e) {
                 if (error) {
                     self.postMessage('error');
                 } else {
-                    console.log('e.data',e.data.neighborhood)
                     let results = restaurants
-                    console.log('results',results)
                     if (e.data.cuisine != 'all') { // filter by cuisine
                         results = results.filter(r => r.cuisine_type == e.data.cuisine);
                     }
@@ -187,7 +195,6 @@ self.addEventListener('message', function(e) {
                     return Math.round(sum/total);
                 })
             Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
-                console.log('values',values)
                 self.postMessage({'restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
             });
             break;
@@ -198,7 +205,6 @@ self.addEventListener('message', function(e) {
                     return res.json();
                 })
                 .then((results)=>{
-                    console.log('return reviews',results)
                     self.postMessage({reviews:results});
                 });
         case 'postReview':
@@ -212,6 +218,21 @@ self.addEventListener('message', function(e) {
                 return response.json();
             }).then((response)=>{
                 self.postMessage({restaurant_id:response.restaurant_id});
+            })
+
+            // Do we have ServiceWorker
+            navigator.serviceWorker.ready.then(registration => {
+                // Put the dream in IndexedDB for later syncing
+                return dreamDb().then(db => {
+                    const tx = db.transaction('dream', 'readwrite');
+                    tx.objectStore('dream').put(value, key);
+                    return tx.complete;
+                });
+
+                return putDream(dream, dream.id).then(() => {
+                // Register a sync with the ServiceWorker
+                return registration.sync.register('add-dream')
+                });
             })
             break;
         default:

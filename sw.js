@@ -72,13 +72,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
 
-const staticCacheName = "mwsrestaurantreview-v11";
+const staticCacheName = "mwsrestaurantreview-v5";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
-const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',1,function(upgradeDb){
+const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
     switch(upgradeDb.oldVersion){
         case 0:
-            upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
+			upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
+		case 1:
+            upgradeDb.createObjectStore('reviews',{keyPath:'id'});
     }
 })
 
@@ -94,8 +96,9 @@ self.addEventListener('install',function(event){
 				'/js/main.js',
 				'/js/restaurant_info.js',
 				'/js/dbhelper.js',
-				'/js/leaflet.js',
+				'/js/dbworker.js',
 				'/css/styles.css',
+				'/css/leaflet.css',
 				'/img/avatar.svg',
 				'/img/back.svg',
 				'/img/clock.svg',
@@ -113,7 +116,7 @@ self.addEventListener('install',function(event){
 				'/img/undefined_1x.jpg',
 				'/img/undefined_2x.jpg',
 			]).catch(function(e){
-				console.log('e',e)
+				console.error('e',e)
 			});
 		})
 	)
@@ -137,44 +140,73 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch',function(event){
 	// check the event request url, and if it ends in restaurants set an id that will be used for IndexedDB
 	const requestUrl = new URL(event.request.url);
+
 	const id = requestUrl.href.endsWith('restaurants') ? "-1" : requestUrl.href.split('/').pop();
+
 	// Check to see if the request is to the remote server
-	if(requestUrl.port === '1337'){
+	if(requestUrl.port === '1337' && requestUrl.pathname === "/reviews/"){
 		event.respondWith(
 			// Check IndexedDB to see if a response for this request is in IndexedDB
+
 			dbPromise.then(function(db){
-				return db.transaction('restaurants').objectStore('restaurants').get(id);
+				return db.transaction('reviews').objectStore('reviews').get(id);
 			}).then(function(data){
-				// If it is, return it otherwise make the fetch request and put it into IndexedDB
-				if(data && data.data){
+				return fetch(event.request).then(function(response){
+					return response.json();
+				}).then(function(json){
+					return dbPromise.then(function(db){
+						var tx = db.transaction('reviews','readwrite');
+						var keyValStore = tx.objectStore('reviews');
+						keyValStore.put({
+							id: id,
+							data: json
+						});
+						return json;
+					})
+				}).catch(function(){
+					// there was an error, just respond with what was in the cache
 					return data.data;
-				}else{
-					return fetch(event.request).then(function(response){
-						return response.json();
-					}).then(function(json){
-						return dbPromise.then(function(db){
-							var tx = db.transaction('restaurants','readwrite');
-							var keyValStore = tx.objectStore('restaurants');
-							keyValStore.put({
-								id: id,
-								data: json
-							});
-							return json;
-						})
-					});
-				}
-				
+				});	
 			}).then(function(response){
 				return new Response(JSON.stringify(response));
 			})
 		)
 	}
+	else if(requestUrl.port === '1337' && requestUrl.pathname != "/reviews/"){
+		event.respondWith(
+			// Check IndexedDB to see if a response for this request is in IndexedDB
+			dbPromise.then(function(db){
+				return db.transaction('restaurants').objectStore('restaurants').get(id);
+			}).then(function(data){
+				return fetch(event.request).then(function(response){
+					return response.json();
+				}).then(function(json){
+					return dbPromise.then(function(db){
+						var tx = db.transaction('restaurants','readwrite');
+						var keyValStore = tx.objectStore('restaurants');
+						keyValStore.put({
+							id: id,
+							data: json
+						});
+						return json;
+					})
+				}).catch(function(){
+					// there was an error, just respond with what was in the cache
+					return data.data;
+				});
+				
+				
+			}).then(function(response){
+				return new Response(JSON.stringify(response));
+			})
+		)
+	}	
 	else if(requestUrl.origin === location.origin){
 		// Check to see if the request is to a restaurant page
-		if(requestUrl.pathname.match('/restaurant.html(.?)')){
+		if(requestUrl.pathname.substr(requestUrl.pathname.lastIndexOf('/') + 1) === 'restaurant.html'){
 			event.respondWith(
 				// Check to see if the restaurant page has been cached, if it is return the cached version otherwise get it from the network
-				caches.match('/restaurant.html(.?)').then(function(response){
+				caches.match('/restaurant.html').then(function(response){
 					if(response) return response;
 					return fetch(event.request);
 				})
@@ -183,7 +215,12 @@ self.addEventListener('fetch',function(event){
 			event.respondWith(
 				// Check to see if a response to this has been cached, if it is serve the cached response otherwise make a request to the network
 				caches.match(event.request).then(function(response) {
-					return response || fetch(event.request);
+					return response || fetch(event.request).then(function(response) {
+						caches.open(staticCacheName).then(function(cache){
+							cache.put(event.request, response.clone());
+							return response;
+						});
+					});
 				})
 			);
 		}
@@ -196,7 +233,7 @@ self.addEventListener('message', function(event) {
 		self.skipWaiting().then(function() {
 			console.log('skipped')
 		}).catch(function(e){
-			console.log('error ',e)
+			console.error('error ',e)
 		});
 	}
 });
