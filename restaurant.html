@@ -46,7 +46,7 @@
       <div class="restaurantdetail__addresscontainer">
         <p id="restaurant-address" class="restaurantdetail__address" aria-label="Restaurant Address"></p>
         <section id="map-container" class="restaurantdetail__mapcontainer">
-          <div id="map" aria-role="application" aria-label="Map Showing Restaurant Location"></div>
+          <div id="map" role="application" aria-label="Map Showing Restaurant Location"></div>
         </section>
       </div>
       <hr class="restaurantdetail__hr"/>
@@ -85,12 +85,12 @@
               <input type="hidden" name="restaurant-rating"/>
           </div>
           <div class="restaurantdetail__reviewnamecontainer">
-              <label class="restaurantdetail__reviewnamelabel">Name</label>
-              <input class="restaurantdetail__reviewnameinput">
+              <label class="restaurantdetail__reviewnamelabel" for="restaurantdetail__reviewnameinput">Name</label>
+              <input class="restaurantdetail__reviewnameinput" id="restaurantdetail__reviewnameinput">
           </div>
           <div class="restaurantdetail__ratingcontainer">
-              <label class="restaurantdetail__reviewlabel">Review</label>
-              <textarea class="restaurantdetail__reviewinput"></textarea>
+              <label class="restaurantdetail__reviewlabel" for="restaurantdetail__reviewinput">Review</label>
+              <textarea class="restaurantdetail__reviewinput" id="restaurantdetail__reviewinput"></textarea>
           </div>
           <div class="restaurantdetail__submitcontainer">
               <input type="submit" value="Submit Review" aria-label="Submit Review" class="restaurantdetail__reviewsubmitbutton"/>

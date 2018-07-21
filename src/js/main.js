@@ -325,6 +325,7 @@ createRestaurantHTML = (restaurant,reviews,webpsrcset, jpgsrcset, imagetext,imag
   // Button to like or dislike
   const like = document.createElement('button');
   like.className = 'restaurant__likebutton'
+  like.setAttribute('aria-label',`Click to favorite ${restaurant.name}`);
   if (restaurant.is_favorite){
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
