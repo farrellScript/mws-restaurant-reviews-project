@@ -411,8 +411,13 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     position: relative;
   }
   &__imagecontainer {
-    max-height: 300px;
+    height: 250px;
+    background: #ccc;
     overflow:hidden;
+  }
+  &__image {
+    width:100%;
+    height:auto;
   }
   &__postreviewcontainer {
     padding: 0;
@@ -450,6 +455,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     height: 16px;
     margin-left: -2px;
   }
+
   &__name {
     color: $black;
     font-size: 24pt;

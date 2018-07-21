@@ -1,4 +1,5 @@
 importScripts('./dbhelper.js');
+import idb from 'idb';
 
 self.addEventListener('message', function(e) {
     switch(e.data.action){
@@ -85,11 +86,19 @@ self.addEventListener('message', function(e) {
             })
             break;
         case 'fetchRestaurantById':
+            
+
             const restaurantDetails = fetch(`http://localhost:1337/restaurants/${e.data.id}`)
                 .then((res)=>{
                     return res.json();
                 }).then((res)=>{
-                    return res;
+                    const webpsrcset = DBHelper.imageWebPSrcSetForRestaurant(res);
+                    const jpgsrcset = DBHelper.imageJpgSrcSetForRestaurant(res);
+                    const imagetext = DBHelper.imageTextForRestaurant(res);
+                    const imageurl = DBHelper.imageUrlForRestaurant(res);
+                    return Promise.all([res,webpsrcset,jpgsrcset,imagetext,imageurl]).then((values)=>{
+                        return values;
+                    });
                 });
             const restaurantReviews = fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
                 .then((res)=>{
@@ -106,18 +115,33 @@ self.addEventListener('message', function(e) {
                 })
             Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
                 console.log('values',values)
-                self.postMessage({'restaurant':values[0], 'reviews': values[1]});
+                self.postMessage({'restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
             });
             break;
         case 'fillReviewsHTML':
+        console.log('return reviews',e.data)
             // make ajax request to get reviews for a given restaurant
             fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
                 .then((res)=>{
                     return res.json();
                 })
                 .then((results)=>{
+                    console.log('return reviews',results)
                     self.postMessage({reviews:results});
                 });
+        case 'postReview':
+            fetch(`http://localhost:1337/reviews/`,{
+                method: 'post',
+                body: JSON.stringify(e.data.data),
+                headers:{
+                    'Content-Type': 'application/json'
+                }
+            }).then((response)=>{
+                return response.json();
+            }).then((response)=>{
+                self.postMessage({restaurant_id:response.restaurant_id});
+            })
+            break;
         default:
           console.log('none of the above')
     }

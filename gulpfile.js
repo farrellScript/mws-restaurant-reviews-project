@@ -17,6 +17,7 @@ gulp.task('default',function(){
     gulp.watch('./src/js/**/*.js',['scripts'])
     gulp.watch('./src/img/*',['images'])
     gulp.watch('./src/sw.js', ['sw'])
+    gulp.watch('./src/dbWorker.js', ['worker'])
 })
 
 gulp.task('scripts',function(){
@@ -72,6 +73,17 @@ gulp.task('images-prod', function() {
             use: [pngquant()]
         }))
         .pipe(gulp.dest('img'))
+});
+
+gulp.task('worker',function(){
+    return gulp.src('./src/dbWorker.js')
+    .pipe(webpack({
+        watch: false,
+        output: {
+            filename: 'dbWorker.js',
+          },
+    }))
+    .pipe(gulp.dest('./js/'));
 });
 
 gulp.task('sw',function(){

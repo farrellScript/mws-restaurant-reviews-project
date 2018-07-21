@@ -72,10 +72,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
 
-const staticCacheName = "mwsrestaurantreview-v1";
+const staticCacheName = "mwsrestaurantreview-v11";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
-const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurantreviews',1,function(upgradeDb){
+const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',1,function(upgradeDb){
     switch(upgradeDb.oldVersion){
         case 0:
             upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
@@ -201,6 +201,37 @@ self.addEventListener('message', function(event) {
 	}
 });
 
+self.addEventListener('sync', (event) => {
+	console.log('attempting sync', event.tag);
+	console.log('syncing', event.tag);
+	
+	event.waitUntil(
+	  getAllDreams().then(dreams => {
+  
+		console.log('got dreams', dreams);
+  
+		const unsynced = dreams.filter(dream => dream.unsynced);
+  
+		console.log('pending sync', unsynced);
+  
+		return Promise.all(unsynced.map(dream => {
+			console.log('Attempting fetch', dream);
+			fetch('/dreams', {
+			  headers: {
+			  'Accept': 'application/json',
+			  'Content-Type': 'application/json'
+			},
+			method: 'POST',
+			body: JSON.stringify(dream)
+		  })
+		  .then(() => {
+			  console.log('Sent to server');
+			  return putDream(Object.assign({}, dream, { unsynced: false }), dream.id);
+			})
+		}))
+	  })
+	)
+  });
 
 /***/ }),
 /* 1 */

@@ -1,8 +1,8 @@
 import idb from 'idb'
-const staticCacheName = "mwsrestaurantreview-v1";
+const staticCacheName = "mwsrestaurantreview-v11";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
-const dbPromise = idb.open('mwsrestaurantreviews',1,function(upgradeDb){
+const dbPromise = idb.open('mwsrestaurants',1,function(upgradeDb){
     switch(upgradeDb.oldVersion){
         case 0:
             upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
@@ -127,3 +127,35 @@ self.addEventListener('message', function(event) {
 		});
 	}
 });
+
+self.addEventListener('sync', (event) => {
+	console.log('attempting sync', event.tag);
+	console.log('syncing', event.tag);
+	
+	event.waitUntil(
+	  getAllDreams().then(dreams => {
+  
+		console.log('got dreams', dreams);
+  
+		const unsynced = dreams.filter(dream => dream.unsynced);
+  
+		console.log('pending sync', unsynced);
+  
+		return Promise.all(unsynced.map(dream => {
+			console.log('Attempting fetch', dream);
+			fetch('/dreams', {
+			  headers: {
+			  'Accept': 'application/json',
+			  'Content-Type': 'application/json'
+			},
+			method: 'POST',
+			body: JSON.stringify(dream)
+		  })
+		  .then(() => {
+			  console.log('Sent to server');
+			  return putDream(Object.assign({}, dream, { unsynced: false }), dream.id);
+			})
+		}))
+	  })
+	)
+  });
