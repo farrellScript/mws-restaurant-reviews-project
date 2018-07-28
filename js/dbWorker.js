@@ -69,13 +69,16 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_idb__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_idb__);
 importScripts('./dbhelper.js');
 
 
+
+
 // Versioning of the IndexedDB database, to be used if the database needs to change
-const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
+const dbPromise = __WEBPACK_IMPORTED_MODULE_1_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
     switch(upgradeDb.oldVersion){
         case 0:
             upgradeDb.createObjectStore('restaurants',{keyPath:'id'});
@@ -88,7 +91,7 @@ self.addEventListener('message', function(e) {
     switch(e.data.action){
         case 'fetchNeighborhoods':
             // Fetch all restaurants
-            DBHelper.fetchRestaurants((error, restaurants) => {
+            __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].fetchRestaurants((error, restaurants) => {
                 if (error) {
                     self.postMessage('error');
                 } else {
@@ -102,7 +105,7 @@ self.addEventListener('message', function(e) {
             break;
         case 'fetchCuisines':
               // Fetch all restaurants
-            DBHelper.fetchRestaurants((error, restaurants) => {
+            __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].fetchRestaurants((error, restaurants) => {
 
                 if (error) {
                     self.postMessage('error');
@@ -118,7 +121,7 @@ self.addEventListener('message', function(e) {
         case 'fetchRestaurantByCuisineAndNeighborhood':
 
             // Fetch all restaurants
-            DBHelper.fetchRestaurants((error, restaurants) => {
+            __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].fetchRestaurants((error, restaurants) => {
                 if (error) {
                     self.postMessage('error');
                 } else {
@@ -136,12 +139,12 @@ self.addEventListener('message', function(e) {
             break; 
         case 'createRestaurantHTML':
             const restaurant = e.data.restaurant;
-            const webpsrcset = DBHelper.imageWebPSrcSetForRestaurant(restaurant);
-            const jpgsrcset = DBHelper.imageJpgSrcSetForRestaurant(restaurant);
-            const imagetext = DBHelper.imageTextForRestaurant(restaurant);
-            const imageurl = DBHelper.imageUrlForRestaurant(restaurant);
-            const urltext = DBHelper.urlTextForRestaurant(restaurant)
-            const url = DBHelper.urlForRestaurant(restaurant)
+            const webpsrcset = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageWebPSrcSetForRestaurant(restaurant);
+            const jpgsrcset = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageJpgSrcSetForRestaurant(restaurant);
+            const imagetext = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageTextForRestaurant(restaurant);
+            const imageurl = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageUrlForRestaurant(restaurant);
+            const urltext = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].urlTextForRestaurant(restaurant)
+            const url = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].urlForRestaurant(restaurant)
             const fetchResults = fetch(`http://localhost:1337/restaurants/${e.data.restaurant.id}`)
                 .then((res)=>{
                     return res.json();
@@ -161,6 +164,22 @@ self.addEventListener('message', function(e) {
                         sum += parseInt(item.rating)
                     })
                     return Math.round(sum/total);
+                }).catch(function(){
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.restaurant.id}`)
+                    }).then(function(results){
+                        let total = 0;
+                        let sum = 0;
+                        results.data.map((item)=>{
+                            total += 1;
+                            sum += parseInt(item.rating)
+                        })
+                        return Math.round(sum/total);
+                    })
+                    console.log('error')
                 })
             Promise.all([fetchResults,fetchReviews,webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url]).then((values)=>{
                 self.postMessage({'restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
@@ -173,14 +192,16 @@ self.addEventListener('message', function(e) {
                 .then((res)=>{
                     return res.json();
                 }).then((res)=>{
-                    const webpsrcset = DBHelper.imageWebPSrcSetForRestaurant(res);
-                    const jpgsrcset = DBHelper.imageJpgSrcSetForRestaurant(res);
-                    const imagetext = DBHelper.imageTextForRestaurant(res);
-                    const imageurl = DBHelper.imageUrlForRestaurant(res);
+                    const webpsrcset = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageWebPSrcSetForRestaurant(res);
+                    const jpgsrcset = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageJpgSrcSetForRestaurant(res);
+                    const imagetext = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageTextForRestaurant(res);
+                    const imageurl = __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__["a" /* default */].imageUrlForRestaurant(res);
                     return Promise.all([res,webpsrcset,jpgsrcset,imagetext,imageurl]).then((values)=>{
                         return values;
                     });
-                });
+                }).catch(()=>{
+                    console.log('error')
+                })
             const restaurantReviews = fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
                 .then((res)=>{
                     return res.json();
@@ -193,6 +214,21 @@ self.addEventListener('message', function(e) {
                         sum += parseInt(item.rating)
                     })
                     return Math.round(sum/total);
+                }).catch(()=>{
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.id}`)
+                    }).then(function(results){
+                        let total = 0;
+                        let sum = 0;
+                        results.data.map((item)=>{
+                            total += 1;
+                            sum += parseInt(item.rating)
+                        })
+                        return Math.round(sum/total);
+                    })
                 })
             Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
                 self.postMessage({'restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
@@ -205,35 +241,60 @@ self.addEventListener('message', function(e) {
                     return res.json();
                 })
                 .then((results)=>{
-                    self.postMessage({reviews:results});
-                });
+                    self.postMessage({reviews:results.data ? results.data:results});
+                }).catch(()=>{
+                    console.log('error')
+                })
         case 'postReview':
-            fetch(`http://localhost:1337/reviews/`,{
-                method: 'post',
-                body: JSON.stringify(e.data.data),
-                headers:{
-                    'Content-Type': 'application/json'
-                }
-            }).then((response)=>{
-                return response.json();
-            }).then((response)=>{
-                self.postMessage({restaurant_id:response.restaurant_id});
-            })
+            if(e.data.data){
+                fetch(`http://localhost:1337/reviews/`,{
+                    method: 'post',
+                    body: JSON.stringify(e.data.data),
+                }).then((response)=>{
+                    return response.json();
+                }).then((response)=>{
 
-            // Do we have ServiceWorker
-            navigator.serviceWorker.ready.then(registration => {
-                // Put the dream in IndexedDB for later syncing
-                return dreamDb().then(db => {
-                    const tx = db.transaction('dream', 'readwrite');
-                    tx.objectStore('dream').put(value, key);
-                    return tx.complete;
-                });
+                    let firstResponse = response
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.data.restaurant_id}`)
+                    }).then(function(response){
+  
+                        let reviews = response.data;
+                        reviews.push(firstResponse);
+                        let newReviews = {id:response.id,data:reviews}
+                        return __WEBPACK_IMPORTED_MODULE_1_idb___default.a.open('mwsrestaurants').then((db)=>{
+                            var tx = db.transaction('reviews','readwrite')
+                            var store = tx.objectStore('reviews')
+                            return store.put(newReviews)
+                        })      
+                    }).then(function(){
+                        self.postMessage({restaurant_id:response.restaurant_id});
+                    });      
+                }).catch((error)=>{                
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.data.restaurant_id}`)
+                    }).then(function(response){
+                        let reviews = response.data;
+                        reviews.push(e.data.data);
 
-                return putDream(dream, dream.id).then(() => {
-                // Register a sync with the ServiceWorker
-                return registration.sync.register('add-dream')
-                });
-            })
+                        let newReviews = {id:response.id,data:reviews}
+                        return __WEBPACK_IMPORTED_MODULE_1_idb___default.a.open('mwsrestaurants').then((db)=>{
+                            var tx = db.transaction('reviews','readwrite')
+                            var store = tx.objectStore('reviews')
+                            return store.put(newReviews)
+                        })      
+                    }).then(function(){
+                        console.log('time to add a sync')
+                        //self.postMessage({action:'sync'});
+                    });          
+                })
+            }
             break;
         default:
           console.log('none of the above')
@@ -246,6 +307,192 @@ self.addEventListener('message', function(e) {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * Common database helper functions.
+ */
+class DBHelper {
+
+  /**
+   * Database URL.
+   * Change this to restaurants.json file location on your server.
+   */
+  static get DATABASE_URL() {
+    const port = 8000 // Change this to your server port
+    return `http://localhost:1337/restaurants`;
+  }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchRestaurants(callback) {
+    fetch(DBHelper.DATABASE_URL).then(function(response) {
+      // Check the response status
+      if(response.status === 200){
+        // Success
+        return response.json();
+      }else{
+        // Error
+        const error = (`Request failed. Returned status of ${response.body}`);
+        callback(error,null)
+      }
+    }).then(function(json) {
+        callback(null,json);
+    }).catch(function(e){
+        console.log('error: ',e)
+    });
+  }
+
+  /**
+   * Fetch a restaurant by its ID.
+   */
+  static fetchRestaurantById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const restaurant = restaurants.find(r => r.id == id);
+        if (restaurant) { // Got the restaurant
+          callback(null, restaurant);
+        } else { // Restaurant does not exist in the database
+          callback('Restaurant does not exist', null);
+        }
+      }
+    });
+  }
+
+  /**
+   * Fetch restaurants by a cuisine type with proper error handling.
+   */
+  static fetchRestaurantByCuisine(cuisine, callback) {
+    // Fetch all restaurants  with proper error handling
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Filter restaurants to have only given cuisine type
+        const results = restaurants.filter(r => r.cuisine_type == cuisine);
+        callback(null, results);
+      }
+    });
+  }
+
+  /**
+   * Fetch restaurants by a neighborhood with proper error handling.
+   */
+  static fetchRestaurantByNeighborhood(neighborhood, callback) {
+    // Fetch all restaurants
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Filter restaurants to have only given neighborhood
+        const results = restaurants.filter(r => r.neighborhood == neighborhood);
+        callback(null, results);
+      }
+    });
+  }
+
+
+  /**
+   * Restaurant page URL.
+   */
+  static urlTextForRestaurant(restaurant) {
+    return (`View Details For ${restaurant.name}`);
+  }
+
+  /**
+   * Restaurant page URL.
+   */
+  static urlForRestaurant(restaurant) {
+    return (`./restaurant.html?id=${restaurant.id}`);
+  }
+
+  /**
+   * Restaurant image URL.
+   */
+  static imageUrlForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}.jpg`);
+  }
+
+/**
+   * Restaurant image alt text
+   */
+  static imageTextForRestaurant(restaurant) {
+    return (`${restaurant.name}`);
+  }
+
+  /**
+   * Restaurant image alt text
+   */
+  static ratingForRestaurant(restaurant) {
+    fetch(`http://localhost:1337/reviews/?restaurant_id=${restaurant.id}`).then((response)=>{
+      return response.json();
+    }).then((items)=>{
+      let reviews = 0;
+      let total = 0;
+      items.map((item)=>{
+        reviews++;
+        total = total + parseInt(item.rating)
+      })
+      return (Math.round(total/reviews));
+    })
+
+  }
+
+  /**
+   * Restaurant Image Source Set
+   */
+  static imageSrcSetForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.jpg 1x, /img/${restaurant.photograph}_2x.jpg 2x`);
+  }
+
+  /**
+   * Restaurant Image Source Set, jpg
+   */
+  static imageJpgSrcSetForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.jpg 1x, /img/${restaurant.photograph}_2x.jpg 2x`);
+  }
+
+  /**
+   * Restaurant Image Source Set, webp
+   */
+  static imageWebPSrcSetForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.webp 1x, /img/${restaurant.photograph}_2x.webp 2x`);
+  }
+
+
+  /**
+   * Restaurant Image Source Fallback
+   */
+  static imageSrcForRestaurant(restaurant) {
+    return (`/img/${restaurant.photograph}_1x.jpg`);
+  }
+
+  /**
+   * Map marker for a restaurant.
+   */
+  // static mapMarkerForRestaurant(restaurant, map) {
+  //   // https://leafletjs.com/reference-1.3.0.html#marker  
+  //   const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+  //     {title: restaurant.name,
+  //     alt: restaurant.name,
+  //     url: DBHelper.urlForRestaurant(restaurant)
+  //     })
+  //     marker.addTo(newMap);
+  //   return marker;
+  //  } 
+
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = DBHelper;
+
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

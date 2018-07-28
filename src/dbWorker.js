@@ -1,5 +1,7 @@
 importScripts('./dbhelper.js');
+import DBHelper from './dbhelper.js';
 import idb from 'idb';
+
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = idb.open('mwsrestaurants',2,function(upgradeDb){
@@ -88,6 +90,22 @@ self.addEventListener('message', function(e) {
                         sum += parseInt(item.rating)
                     })
                     return Math.round(sum/total);
+                }).catch(function(){
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.restaurant.id}`)
+                    }).then(function(results){
+                        let total = 0;
+                        let sum = 0;
+                        results.data.map((item)=>{
+                            total += 1;
+                            sum += parseInt(item.rating)
+                        })
+                        return Math.round(sum/total);
+                    })
+                    console.log('error')
                 })
             Promise.all([fetchResults,fetchReviews,webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url]).then((values)=>{
                 self.postMessage({'restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
@@ -107,7 +125,9 @@ self.addEventListener('message', function(e) {
                     return Promise.all([res,webpsrcset,jpgsrcset,imagetext,imageurl]).then((values)=>{
                         return values;
                     });
-                });
+                }).catch(()=>{
+                    console.log('error')
+                })
             const restaurantReviews = fetch(`http://localhost:1337/reviews/?restaurant_id=${e.data.id}`)
                 .then((res)=>{
                     return res.json();
@@ -120,6 +140,21 @@ self.addEventListener('message', function(e) {
                         sum += parseInt(item.rating)
                     })
                     return Math.round(sum/total);
+                }).catch(()=>{
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.id}`)
+                    }).then(function(results){
+                        let total = 0;
+                        let sum = 0;
+                        results.data.map((item)=>{
+                            total += 1;
+                            sum += parseInt(item.rating)
+                        })
+                        return Math.round(sum/total);
+                    })
                 })
             Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
                 self.postMessage({'restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
@@ -132,35 +167,60 @@ self.addEventListener('message', function(e) {
                     return res.json();
                 })
                 .then((results)=>{
-                    self.postMessage({reviews:results});
-                });
+                    self.postMessage({reviews:results.data ? results.data:results});
+                }).catch(()=>{
+                    console.log('error')
+                })
         case 'postReview':
-            fetch(`http://localhost:1337/reviews/`,{
-                method: 'post',
-                body: JSON.stringify(e.data.data),
-                headers:{
-                    'Content-Type': 'application/json'
-                }
-            }).then((response)=>{
-                return response.json();
-            }).then((response)=>{
-                self.postMessage({restaurant_id:response.restaurant_id});
-            })
+            if(e.data.data){
+                fetch(`http://localhost:1337/reviews/`,{
+                    method: 'post',
+                    body: JSON.stringify(e.data.data),
+                }).then((response)=>{
+                    return response.json();
+                }).then((response)=>{
 
-            // Do we have ServiceWorker
-            navigator.serviceWorker.ready.then(registration => {
-                // Put the dream in IndexedDB for later syncing
-                return dreamDb().then(db => {
-                    const tx = db.transaction('dream', 'readwrite');
-                    tx.objectStore('dream').put(value, key);
-                    return tx.complete;
-                });
+                    let firstResponse = response
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.data.restaurant_id}`)
+                    }).then(function(response){
+  
+                        let reviews = response.data;
+                        reviews.push(firstResponse);
+                        let newReviews = {id:response.id,data:reviews}
+                        return idb.open('mwsrestaurants').then((db)=>{
+                            var tx = db.transaction('reviews','readwrite')
+                            var store = tx.objectStore('reviews')
+                            return store.put(newReviews)
+                        })      
+                    }).then(function(){
+                        self.postMessage({restaurant_id:response.restaurant_id});
+                    });      
+                }).catch((error)=>{                
+                    return dbPromise.then(function(db){
+                        return db
+                            .transaction('reviews')
+                            .objectStore('reviews')
+                            .get(`?restaurant_id=${e.data.data.restaurant_id}`)
+                    }).then(function(response){
+                        let reviews = response.data;
+                        reviews.push(e.data.data);
 
-                return putDream(dream, dream.id).then(() => {
-                // Register a sync with the ServiceWorker
-                return registration.sync.register('add-dream')
-                });
-            })
+                        let newReviews = {id:response.id,data:reviews}
+                        return idb.open('mwsrestaurants').then((db)=>{
+                            var tx = db.transaction('reviews','readwrite')
+                            var store = tx.objectStore('reviews')
+                            return store.put(newReviews)
+                        })      
+                    }).then(function(){
+                        console.log('time to add a sync')
+                        //self.postMessage({action:'sync'});
+                    });          
+                })
+            }
             break;
         default:
           console.log('none of the above')

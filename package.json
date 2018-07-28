@@ -31,5 +31,8 @@
     "imagemin-pngquant": "^5.1.0",
     "webpack": "^4.14.0",
     "webpack-stream": "^4.0.3"
+  },
+  "dependencies": {
+    "uniqid": "^5.0.3"
   }
 }

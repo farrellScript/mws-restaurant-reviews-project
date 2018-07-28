@@ -168,7 +168,7 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant,reviews,webpsrcset,jpgsrcset,imagetext,imageurl) => {
-  console.log('fill restaurant html',restaurant)
+
   const name = document.getElementById('restaurantdetail__id');
   name.value = restaurant.id;
 
@@ -415,9 +415,10 @@ document.querySelector('.restaurantdetails__reviewform').addEventListener('submi
     "name": name,
     "rating": parseInt(rating),
     "comments": comment,
-    "createdAt":new Date().getTime(),
-    "updatedAt":new Date().getTime()
-  };
+    // "createdAt":new Date().getTime(),
+    // "updatedAt":new Date().getTime(),
+    // "unsynced":true,
+  }
 
   dbWorker.postMessage({action:'postReview', data, id:data.restaurant_id});
 });
@@ -448,6 +449,14 @@ dbWorker.addEventListener('message', function(e) {
     if(e.data.restaurant){
       fillRestaurantHTML(e.data.restaurant,e.data.reviews,e.data.webpsrcset,e.data.jpgsrcset,e.data.imagetext,e.data.imageurl);
     }
+    // if(e.data.action === 'sync'){
+    //   console.log('back here')
+    //   if ('serviceWorker' in navigator) {
+    //     navigator.serviceWorker.ready.then(function(swRegistration) {
+    //       return swRegistration.sync.register('add-review');
+    //     });
+    //   }
+    // }
   }
 }, false);
 
@@ -483,9 +492,11 @@ setTimeout(function(){
     if (e.data == 'error') { // Got an error
       console.error(e.data)
     } else {
-      console.log('e.data',e.data)
-      if(e.data.reviews.length){
-        fillReviewsHTML(e.data.reviews);
+
+      if(e.data.reviews){
+        if(e.data.reviews.length){
+          fillReviewsHTML(e.data.reviews);
+        }
       }
       if(e.data.restaurant){
         self.newMap = L.map('map', {

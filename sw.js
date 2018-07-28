@@ -72,7 +72,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
 
-const staticCacheName = "mwsrestaurantreview-v5";
+const staticCacheName = "mwsrestaurantreview-v7";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
@@ -137,6 +137,36 @@ self.addEventListener('activate', function(event) {
 	);
 });
 
+function fromCache(request) {
+	return caches.open(staticCacheName).then(function (cache) {
+	  return cache.match(request);
+	});
+}
+
+function update(request) {
+	return caches.open(staticCacheName).then(function (cache) {
+	  return fetch(request).then(function (response) {
+		return cache.put(request, response.clone()).then(function () {
+		  return response;
+		});
+	  });
+	});
+}
+
+// function refresh(response) {
+// 	return self.clients.matchAll().then(function (clients) {
+// 		clients.forEach(function (client) {
+// 			var message = {
+// 				type: 'refresh',
+// 				url: response.url,
+// 				eTag: response.headers.get('ETag')
+// 			};
+// 			client.postMessage(JSON.stringify(message));
+// 		});
+// 	});
+// }
+  
+
 self.addEventListener('fetch',function(event){
 	// check the event request url, and if it ends in restaurants set an id that will be used for IndexedDB
 	const requestUrl = new URL(event.request.url);
@@ -144,35 +174,130 @@ self.addEventListener('fetch',function(event){
 	const id = requestUrl.href.endsWith('restaurants') ? "-1" : requestUrl.href.split('/').pop();
 
 	// Check to see if the request is to the remote server
-	if(requestUrl.port === '1337' && requestUrl.pathname === "/reviews/"){
+	if(requestUrl.port === '1337' && requestUrl.pathname === "/reviews/" && event.request.method === "GET"){
+		
 		event.respondWith(
-			// Check IndexedDB to see if a response for this request is in IndexedDB
 
+				// console.log('got reviews', reviews.data);
+				// if(reviews && reviews.data){
+				// 	let unsynced2 = reviews.data.filter(review => {
+				// 		console.log('review: ',review)
+				// 		return review.unsynced === true
+				// 	});
+				// 	let unsynced = []
+				// 	return Promise.all(unsynced.map(function(review){
+				// 		fetch('http://localhost:1337/reviews/', {
+				// 			method: 'POST',
+				// 			body: JSON.stringify(review)
+				// 		}).then(function(response){
+				// 			return response.json();
+				// 		}).then(function(response){
+				// 			let synced = Object.assign({}, reviews);
+				// 			reviews.data.map((review,index) => {
+				// 				if((review.unsynced === true)&&(review.id == response.id)){
+				// 					synced.data[index].unsynced = false
+				// 				}
+				// 			});
+				// 			console.log('---',synced)
+				// 			return dbPromise.then((db) => {
+				// 				const tx = db.transaction('reviews', 'readwrite');
+				// 				console.log('+++ ',synced)
+				// 				tx.objectStore('reviews').put(synced);
+				// 				return tx.complete;
+				// 			});
+				// 		});
+				// 	}))
+				// }else{
+				// 	return reviews	
+				// }
+
+				// console.log('pending sync', unsynced);
+		
+				// return Promise.all(unsynced.map(review => {
+				// 	console.log('Attempting fetch', review);
+				// 	fetch('http://localhost:1337/reviews/', {
+				// 	method: 'POST',
+				// 	body: JSON.stringify(review)
+				// })
+				// .then((res) => {
+				// 	console.log('Sent to server');
+				// 	console.log('res',res)
+				// 	const synced = Object.assign({}, review, { unsynced: false });
+				// 	return dbPromise.then((db) => {
+				// 		const tx = db.transaction('reviews', 'readwrite');
+				// 		tx.objectStore('reviews').put(synced);
+				// 		return tx.complete;
+				// 	});
+
+				// 	})
+				// }))			
+			// }).then(function(response){
+			// 	return new Response(JSON.stringify(response));
+			// }).catch(function(e){
+			// 	console.log('e',e)
+			// })
+			// Check IndexedDB to see if a response for this request is in IndexedDB
 			dbPromise.then(function(db){
 				return db.transaction('reviews').objectStore('reviews').get(id);
-			}).then(function(data){
-				return fetch(event.request).then(function(response){
-					return response.json();
-				}).then(function(json){
-					return dbPromise.then(function(db){
-						var tx = db.transaction('reviews','readwrite');
-						var keyValStore = tx.objectStore('reviews');
-						keyValStore.put({
-							id: id,
-							data: json
+			}).then(function(reviews){
+
+				if(reviews){
+					let unsynced = reviews.data.filter(review => {
+						return typeof review.createdAt === "undefined"
+					});		
+					console.log('unsynced reviews:',unsynced)
+
+					return Promise.all(unsynced.map(function(review){
+						fetch('http://localhost:1337/reviews/', {
+							method: 'POST',
+							body: JSON.stringify(review)
+						}).then(function(response){
+							return response.json();
+						}).then(function(response){
+							return response;
 						});
-						return json;
+					})).then(function(){
+						return reviews;
 					})
-				}).catch(function(){
-					// there was an error, just respond with what was in the cache
-					return data.data;
-				});	
+				}else{
+					return
+				}
+
+
+				
+			}).then(function(){
+			return fetch(event.request).then(function(response){
+				return response.json();
+			}).then(function(json){
+				return dbPromise.then(function(db){
+					var tx = db.transaction('reviews','readwrite');
+					var keyValStore = tx.objectStore('reviews');
+					keyValStore.put({
+						id: id,
+						data: json
+					});
+					return json;
+				})
+			}).catch(function(){
+				// there was an error, just respond with what was in the cache
+				// return data;
+				return dbPromise.then(function(db){
+					return db.transaction('reviews').objectStore('reviews').get(id);
+				}).then(function(reviews){
+					return reviews;
+				})
+				
+			});
+				
+				
 			}).then(function(response){
+				return new Response(JSON.stringify(response));
+			}).catch(function(response){
 				return new Response(JSON.stringify(response));
 			})
 		)
 	}
-	else if(requestUrl.port === '1337' && requestUrl.pathname != "/reviews/"){
+	else if(requestUrl.port === '1337' && requestUrl.pathname != "/reviews/" && event.request.method === "GET"){
 		event.respondWith(
 			// Check IndexedDB to see if a response for this request is in IndexedDB
 			dbPromise.then(function(db){
@@ -201,25 +326,37 @@ self.addEventListener('fetch',function(event){
 			})
 		)
 	}	
-	else if(requestUrl.origin === location.origin){
+	else if(requestUrl.origin === location.origin && event.request.method === "GET"){
 		// Check to see if the request is to a restaurant page
 		if(requestUrl.pathname.substr(requestUrl.pathname.lastIndexOf('/') + 1) === 'restaurant.html'){
 			event.respondWith(
 				// Check to see if the restaurant page has been cached, if it is return the cached version otherwise get it from the network
-				caches.match('/restaurant.html').then(function(response){
-					if(response) return response;
-					return fetch(event.request);
+				caches.match('/restaurant.html').then((response)=>{
+					return response || fetch(event.request).then((response)=>{
+						caches.open(staticCacheName).then(function(cache){
+							cache.put(event.request,response.clone());
+							return response;
+						})
+					});
 				})
 			)
 		}else{
 			event.respondWith(
 				// Check to see if a response to this has been cached, if it is serve the cached response otherwise make a request to the network
-				caches.match(event.request).then(function(response) {
-					return response || fetch(event.request).then(function(response) {
+				// caches.match(event.request).then(function(response) {
+				// 	return response || fetch(event.request).then(function(response) {
+				// 		caches.open(staticCacheName).then(function(cache){
+				// 			cache.put(event.request, response.clone());
+				// 			return response;
+				// 		});
+				// 	});
+				// })
+				caches.match(event.request).then((response)=>{
+					return response || fetch(event.request).then((response)=>{
 						caches.open(staticCacheName).then(function(cache){
-							cache.put(event.request, response.clone());
+							cache.put(event.request,response.clone());
 							return response;
-						});
+						})
 					});
 				})
 			);
@@ -239,36 +376,38 @@ self.addEventListener('message', function(event) {
 });
 
 self.addEventListener('sync', (event) => {
-	console.log('attempting sync', event.tag);
-	console.log('syncing', event.tag);
-	
-	event.waitUntil(
-	  getAllDreams().then(dreams => {
-  
-		console.log('got dreams', dreams);
-  
-		const unsynced = dreams.filter(dream => dream.unsynced);
-  
-		console.log('pending sync', unsynced);
-  
-		return Promise.all(unsynced.map(dream => {
-			console.log('Attempting fetch', dream);
-			fetch('/dreams', {
-			  headers: {
-			  'Accept': 'application/json',
-			  'Content-Type': 'application/json'
-			},
-			method: 'POST',
-			body: JSON.stringify(dream)
-		  })
-		  .then(() => {
-			  console.log('Sent to server');
-			  return putDream(Object.assign({}, dream, { unsynced: false }), dream.id);
+
+	if (event.tag == "add-review") {
+		console.log('attempting sync', event.tag);
+		console.log('syncing', event.tag);		
+		event.waitUntil(
+			dbPromise.then(function(db){
+				return db.transaction('reviews').objectStore('reviews').getAll();
+			}).then(reviews => {
+				const unsynced = reviews[0].data.filter(review => review.unsynced);
+				console.log('pending sync', unsynced);
+				return Promise.all(unsynced.map(review => {
+					console.log('Attempting fetch', review);
+					fetch('http://localhost:1337/reviews/', {
+					method: 'POST',
+					body: JSON.stringify(review)
+				})
+				.then((res) => {
+					const synced = Object.assign({}, review, { unsynced: false });
+					return dbPromise.then((db) => {
+						const tx = db.transaction('reviews', 'readwrite');
+						tx.objectStore('reviews').put(synced);
+						return tx.complete;
+					});
+
+					})
+				}))
 			})
-		}))
-	  })
-	)
-  });
+		)
+	}
+});
+
+
 
 /***/ }),
 /* 1 */
