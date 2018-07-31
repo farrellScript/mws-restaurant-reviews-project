@@ -222,6 +222,55 @@ self.addEventListener('message', function(e) {
                 })
             }
             break;
+        case 'favoriteRestaurant':
+        console.log('favorite')
+        
+            fetch(`http://localhost:1337/restaurants/${e.data.id}/?is_favorite=${e.data.value}`, {
+                method: 'PUT'
+            }).then(function(res){
+                return res.json()
+            }).then(function(res){
+                console.log('res',res)
+                let returnedResult = res
+                return dbPromise.then(function(db){
+                    return db
+                        .transaction('restaurants')
+                        .objectStore('restaurants')
+                        .get(`${e.data.id}`)
+                }).then(function(result){
+
+                    let newReviews = {id:`${returnedResult.id}`,data:returnedResult}
+                    console.log('newReviews',newReviews)
+                    return idb.open('mwsrestaurants').then((db)=>{
+                        var tx = db.transaction('restaurants','readwrite')
+                        var store = tx.objectStore('restaurants')
+                        return store.put(newReviews)
+                    }) 
+                }).then(function(){
+                    self.postMessage({favorite:e.data.value});
+                }) 
+            }).catch(function(){
+                console.log('whoops')
+                return dbPromise.then(function(db){
+                    return db
+                        .transaction('restaurants')
+                        .objectStore('restaurants')
+                        .get(`${e.data.id}`)
+                }).then(function(result){
+                    let newResult = result
+                    newResult.data.is_favorite = `${e.data.value}`
+                    let newReviews = {id:e.data.id,data:newResult.data}
+                    console.log('newReviews',newReviews.data)
+                    return idb.open('mwsrestaurants').then((db)=>{
+                        var tx = db.transaction('restaurants','readwrite')
+                        var store = tx.objectStore('restaurants')
+                        return store.put(newReviews)
+                    }) 
+                }).then(function(){
+                    self.postMessage({favorite:e.data.value});
+                })       
+            })
+            break;
         default:
           console.log('none of the above')
     }

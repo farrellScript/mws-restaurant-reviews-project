@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mwsrestaurantreview-v7";
+const staticCacheName = "mwsrestaurantreview-v9";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = idb.open('mwsrestaurants',2,function(upgradeDb){
@@ -63,22 +63,6 @@ self.addEventListener('activate', function(event) {
 	  })
 	);
 });
-
-function fromCache(request) {
-	return caches.open(staticCacheName).then(function (cache) {
-	  return cache.match(request);
-	});
-}
-
-function update(request) {
-	return caches.open(staticCacheName).then(function (cache) {
-	  return fetch(request).then(function (response) {
-		return cache.put(request, response.clone()).then(function () {
-		  return response;
-		});
-	  });
-	});
-}
   
 
 self.addEventListener('fetch',function(event){
@@ -91,65 +75,6 @@ self.addEventListener('fetch',function(event){
 	if(requestUrl.port === '1337' && requestUrl.pathname === "/reviews/" && event.request.method === "GET"){
 		
 		event.respondWith(
-
-				// console.log('got reviews', reviews.data);
-				// if(reviews && reviews.data){
-				// 	let unsynced2 = reviews.data.filter(review => {
-				// 		console.log('review: ',review)
-				// 		return review.unsynced === true
-				// 	});
-				// 	let unsynced = []
-				// 	return Promise.all(unsynced.map(function(review){
-				// 		fetch('http://localhost:1337/reviews/', {
-				// 			method: 'POST',
-				// 			body: JSON.stringify(review)
-				// 		}).then(function(response){
-				// 			return response.json();
-				// 		}).then(function(response){
-				// 			let synced = Object.assign({}, reviews);
-				// 			reviews.data.map((review,index) => {
-				// 				if((review.unsynced === true)&&(review.id == response.id)){
-				// 					synced.data[index].unsynced = false
-				// 				}
-				// 			});
-				// 			console.log('---',synced)
-				// 			return dbPromise.then((db) => {
-				// 				const tx = db.transaction('reviews', 'readwrite');
-				// 				console.log('+++ ',synced)
-				// 				tx.objectStore('reviews').put(synced);
-				// 				return tx.complete;
-				// 			});
-				// 		});
-				// 	}))
-				// }else{
-				// 	return reviews	
-				// }
-
-				// console.log('pending sync', unsynced);
-		
-				// return Promise.all(unsynced.map(review => {
-				// 	console.log('Attempting fetch', review);
-				// 	fetch('http://localhost:1337/reviews/', {
-				// 	method: 'POST',
-				// 	body: JSON.stringify(review)
-				// })
-				// .then((res) => {
-				// 	console.log('Sent to server');
-				// 	console.log('res',res)
-				// 	const synced = Object.assign({}, review, { unsynced: false });
-				// 	return dbPromise.then((db) => {
-				// 		const tx = db.transaction('reviews', 'readwrite');
-				// 		tx.objectStore('reviews').put(synced);
-				// 		return tx.complete;
-				// 	});
-
-				// 	})
-				// }))			
-			// }).then(function(response){
-			// 	return new Response(JSON.stringify(response));
-			// }).catch(function(e){
-			// 	console.log('e',e)
-			// })
 			// Check IndexedDB to see if a response for this request is in IndexedDB
 			dbPromise.then(function(db){
 				return db.transaction('reviews').objectStore('reviews').get(id);
@@ -159,7 +84,7 @@ self.addEventListener('fetch',function(event){
 					let unsynced = reviews.data.filter(review => {
 						return typeof review.createdAt === "undefined"
 					});		
-					console.log('unsynced reviews:',unsynced)
+
 
 					return Promise.all(unsynced.map(function(review){
 						fetch('http://localhost:1337/reviews/', {
@@ -176,9 +101,7 @@ self.addEventListener('fetch',function(event){
 				}else{
 					return
 				}
-
-
-				
+		
 			}).then(function(){
 			return fetch(event.request).then(function(response){
 				return response.json();
@@ -194,7 +117,6 @@ self.addEventListener('fetch',function(event){
 				})
 			}).catch(function(){
 				// there was an error, just respond with what was in the cache
-				// return data;
 				return dbPromise.then(function(db){
 					return db.transaction('reviews').objectStore('reviews').get(id);
 				}).then(function(reviews){
@@ -212,7 +134,9 @@ self.addEventListener('fetch',function(event){
 		)
 	}
 	else if(requestUrl.port === '1337' && requestUrl.pathname != "/reviews/" && event.request.method === "GET"){
+
 		event.respondWith(
+			
 			// Check IndexedDB to see if a response for this request is in IndexedDB
 			dbPromise.then(function(db){
 				return db.transaction('restaurants').objectStore('restaurants').get(id);
@@ -220,14 +144,64 @@ self.addEventListener('fetch',function(event){
 				return fetch(event.request).then(function(response){
 					return response.json();
 				}).then(function(json){
+					let serverFavorite = json.is_favorite
 					return dbPromise.then(function(db){
 						var tx = db.transaction('restaurants','readwrite');
 						var keyValStore = tx.objectStore('restaurants');
-						keyValStore.put({
-							id: id,
-							data: json
-						});
-						return json;
+						return keyValStore.get(id).then(function(response){
+
+							// The local and server don't match, try to update the server
+							if(response.data.is_favorite != serverFavorite){
+								console.log('they do not match')
+								if(response.data.is_favorite == 'true'){
+									console.log('making favorite')
+									fetch('http://localhost:1337/restaurants/1/?is_favorite=true', {
+										method: 'PUT'
+									}).then(function(json){
+										return json.json()
+									}).then(function(response){
+										console.log('response: ',response)
+										return dbPromise.then((db) => {
+											const tx = db.transaction('restaurants', 'readwrite');
+											tx.objectStore('restaurants').put({id:`${response.id}`,data:response});
+											return tx.complete;
+										});
+									}).then(function(){
+										self.clients.matchAll().then(function (clients){
+											clients.forEach(function(client){
+												client.postMessage({favorite:true});
+											});
+										}); 
+										
+										
+									})
+								}else{
+									console.log('making unfavorite')
+									fetch('http://localhost:1337/restaurants/1/?is_favorite=false', {
+										method: 'PUT'
+									}).then(function(json){
+										return json.json()
+									}).then(function(response){
+										console.log('response: ',response)
+										return dbPromise.then((db) => {
+											const tx = db.transaction('restaurants', 'readwrite');
+											tx.objectStore('restaurants').put({id:`${response.id}`,data:response});
+											return tx.complete;
+										});
+									}).then(function(){
+										self.clients.matchAll().then(function (clients){
+											clients.forEach(function(client){
+												client.postMessage({favorite:false});
+											});
+										}); 
+									})
+								}
+							}
+							;
+							return json;
+						})
+		
+
 					})
 				}).catch(function(){
 					// there was an error, just respond with what was in the cache

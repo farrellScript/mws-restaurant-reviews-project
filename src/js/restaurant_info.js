@@ -168,6 +168,32 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant,reviews,webpsrcset,jpgsrcset,imagetext,imageurl) => {
+  const favorite = document.getElementById('favorite-button');
+  
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('xlmns','http://www.w3.org/2000/svg');
+  svg.setAttribute('xlmns:xlink','http://www.w3.org/1999/xlink');
+  svg.setAttribute('version','1,1');
+  svg.setAttribute('version','1,1');
+  svg.setAttribute('x','0px');
+  svg.setAttribute('y','0px');
+  svg.setAttribute("viewBox",'0 0 24 24');
+  svg.setAttribute("xml:space","preserve");
+  if(restaurant.is_favorite == 'true'){
+    favorite.classList.add('restaurantdetail__likebutton--active')
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d','M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z');
+    svg.append(path);
+    svg.setAttribute('class','restaurantdetail__likebuttonimage restaurantdetail__likebuttonimage--active');
+  }else{
+    favorite.classList.remove('restaurantdetail__likebutton--active')
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d','M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z');
+    svg.append(path);
+    svg.setAttribute('class','restaurantdetail__likebuttonimage');
+  }
+  favorite.innerHTML = '';
+  favorite.append(svg);
 
   const name = document.getElementById('restaurantdetail__id');
   name.value = restaurant.id;
@@ -423,6 +449,18 @@ document.querySelector('.restaurantdetails__reviewform').addEventListener('submi
   dbWorker.postMessage({action:'postReview', data, id:data.restaurant_id});
 });
 
+document.querySelector('.restaurantdetail__likebutton').addEventListener('click',function(e){
+  e.preventDefault();
+  const pageId = document.getElementById('restaurantdetail__id').value
+  console.log('active ',this.classList.contains('restaurantdetail__likebutton--active'))
+  if(this.classList.contains('restaurantdetail__likebutton--active')){
+    dbWorker.postMessage({action:'favoriteRestaurant', value:false, id:pageId});
+  }else{
+    dbWorker.postMessage({action:'favoriteRestaurant', value:true, id:pageId});
+  }
+  
+})
+
 const hoverlinks = document.querySelectorAll('.restaurantdetail__star')
 
 for (var i = 0; i < hoverlinks.length; i++) {
@@ -449,6 +487,16 @@ dbWorker.addEventListener('message', function(e) {
     if(e.data.restaurant){
       fillRestaurantHTML(e.data.restaurant,e.data.reviews,e.data.webpsrcset,e.data.jpgsrcset,e.data.imagetext,e.data.imageurl);
     }
+    if(e.data.favorite == true){
+      console.log('make it a favorite')
+      document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+    }
+    if(e.data.favorite == false){
+      console.log('unfavorite it')
+      document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+    }
     // if(e.data.action === 'sync'){
     //   console.log('back here')
     //   if ('serviceWorker' in navigator) {
@@ -460,15 +508,22 @@ dbWorker.addEventListener('message', function(e) {
   }
 }, false);
 
-// document.querySelector('cuisines-select').addEventListener('focus',function(){
-//   this.previousElementSibling.classList.add('filter__label--active');
-// }) 
-
-// document.querySelector('cuisines-select').addEventListener('blur',function(){
-//   if(this.value === 'all'){
-//     this.previousElementSibling.classList.remove('filter__label--active');
-//   }
-// })
+navigator.serviceWorker.addEventListener('message', function(e) {
+  if (e.data == 'error') { // Got an error
+    console.error(e.data);
+  } else {
+    if(e.data.favorite == true){
+      console.log('make it a favorite')
+      document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+    }
+    if(e.data.favorite == false){
+      console.log('unfavorite it')
+      document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+    }
+  }
+}, false);
 
 /**
   * Initialize map as soon as the page is loaded.

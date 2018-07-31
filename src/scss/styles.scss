@@ -414,6 +414,33 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
     height: 250px;
     background: #ccc;
     overflow:hidden;
+    position: relative;
+  }
+  &__detailcontaininer {
+    position: relative;
+  }
+  &__likebutton {
+    position: absolute;
+    top: -37px;
+    right: 16px;
+    background-color: $white;
+    height: 42px;
+    width: 42px;
+    border-radius: 21px;
+    box-shadow: 0 1px 4px rgba(57, 63, 72, 0.3);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+  }
+  &__likebuttonimage {
+    width: 24px;
+    fill:white;
+    stroke:black;
+    transition: all 500ms cubic-bezier(0.000, 0.930, 0.125, 1.000); /* custom */
+    &--active {
+      fill:black;
+      stroke:black;
+    }
   }
   &__image {
     width:100%;
