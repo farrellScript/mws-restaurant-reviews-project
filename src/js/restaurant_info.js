@@ -522,6 +522,14 @@ navigator.serviceWorker.addEventListener('message', function(e) {
       document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
     }
+    // if(e.data.action === 'sync'){
+    //   console.log('back here')
+    //   if ('serviceWorker' in navigator) {
+    //     navigator.serviceWorker.ready.then(function(swRegistration) {
+    //       return swRegistration.sync.register('add-review');
+    //     });
+    //   }
+    // }
   }
 }, false);
 

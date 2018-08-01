@@ -25,7 +25,7 @@ self.addEventListener('message', function(e) {
                     const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood)
                     // Remove duplicates from neighborhoods
                     const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i)
-                    self.postMessage({'neighborhoods':uniqueNeighborhoods});
+                    self.postMessage({'action':'fetchNeighborhoods','neighborhoods':uniqueNeighborhoods});
                 }
             });
             break;
@@ -40,7 +40,7 @@ self.addEventListener('message', function(e) {
                     const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type)
                     // Remove duplicates from cuisines
                     const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i)
-                    self.postMessage({'cuisines':uniqueCuisines});
+                    self.postMessage({'action':'fetchCuisines','cuisines':uniqueCuisines});
                 }
             });
             break;
@@ -58,7 +58,7 @@ self.addEventListener('message', function(e) {
                     if (e.data.neighborhood != 'all') { // filter by neighborhood
                         results = results.filter(r => r.neighborhood == e.data.neighborhood);
                     }
-                    self.postMessage({'results':results});
+                    self.postMessage({'action':'fetchRestaurantByCuisineAndNeighborhood','results':results});
                 }
             });
 
@@ -108,7 +108,7 @@ self.addEventListener('message', function(e) {
                     console.log('error')
                 })
             Promise.all([fetchResults,fetchReviews,webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url]).then((values)=>{
-                self.postMessage({'restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
+                self.postMessage({'action':'createRestaurantHTML','restaurant':values[0], 'reviews': values[1],webpsrcset, jpgsrcset, imagetext,imageurl,urltext,url});
             })
             break;
         case 'fetchRestaurantById':
@@ -157,7 +157,7 @@ self.addEventListener('message', function(e) {
                     })
                 })
             Promise.all([restaurantDetails,restaurantReviews]).then((values)=>{
-                self.postMessage({'restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
+                self.postMessage({'action':'fetchRestaurantById','restaurant':values[0][0], 'reviews': values[1],'webpsrcset':values[0][1],'jpgsrcset':values[0][2],'imagetext':values[0][3],'imageurl':values[0][4]});
             });
             break;
         case 'fillReviewsHTML':
@@ -167,7 +167,7 @@ self.addEventListener('message', function(e) {
                     return res.json();
                 })
                 .then((results)=>{
-                    self.postMessage({reviews:results.data ? results.data:results});
+                    self.postMessage({'action':'fillReviewsHTML',reviews:results.data ? results.data:results});
                 }).catch(()=>{
                     console.log('error')
                 })
@@ -197,7 +197,7 @@ self.addEventListener('message', function(e) {
                             return store.put(newReviews)
                         })      
                     }).then(function(){
-                        self.postMessage({restaurant_id:response.restaurant_id});
+                        self.postMessage({'action':'postReview',restaurant_id:response.restaurant_id});
                     });      
                 }).catch((error)=>{                
                     return dbPromise.then(function(db){
@@ -247,7 +247,7 @@ self.addEventListener('message', function(e) {
                         return store.put(newReviews)
                     }) 
                 }).then(function(){
-                    self.postMessage({favorite:e.data.value});
+                    self.postMessage({'action':'favoriteRestaurant',favorite:e.data.value});
                 }) 
             }).catch(function(){
                 console.log('whoops')
@@ -267,7 +267,7 @@ self.addEventListener('message', function(e) {
                         return store.put(newReviews)
                     }) 
                 }).then(function(){
-                    self.postMessage({favorite:e.data.value});
+                    self.postMessage({'action':'favoriteRestaurant',favorite:e.data.value});
                 })       
             })
             break;

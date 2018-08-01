@@ -135,13 +135,6 @@ if('serviceWorker' in navigator) {
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = () => {
-  dbWorker.addEventListener('message', function(e) {
-    if (e.data == 'error') { // Got an error
-      console.error(e.data);
-    } else {
-      fillNeighborhoodsHTML(e.data.neighborhoods);
-    }
-  }, false);
   dbWorker.postMessage({action:'fetchNeighborhoods'});
 }
 
@@ -164,13 +157,6 @@ fillNeighborhoodsHTML = (neighborhoods) => {
  * Fetch all cuisines and set their HTML.
  */
 fetchCuisines = () => {
-  dbWorker.addEventListener('message', function(e) {
-    if (e.data == 'error') { // Got an error
-      console.error(e.data);
-    } else {
-      fillCuisinesHTML(e.data.cuisines);
-    }
-  }, false);
   dbWorker.postMessage({action:'fetchCuisines'});
 }
 
@@ -226,19 +212,6 @@ updateRestaurants = () => {
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
 
-  dbWorker.addEventListener('message', function(e) {
-    if (e.data == 'error') { // Got an error
-      console.error(e.data);
-    }else if (typeof e.data.results == undefined){
-      console.log('undefined')
-    } else {
-      if(e.data.results){
-        resetRestaurants(e.data.restults);
-        fillRestaurantsHTML(e.data.results);
-      }
-      
-    }
-  }, false);
   dbWorker.postMessage({action:'fetchRestaurantByCuisineAndNeighborhood',cuisine:cuisine,neighborhood:neighborhood});
 }
 
@@ -262,16 +235,7 @@ resetRestaurants = (restaurants) => {
  */
 fillRestaurantsHTML = (restaurants) => {
   if(restaurants){
-    const ul = document.getElementById('restaurants-list');
     
-    dbWorker.addEventListener('message', function(e) {
-      if (e.data == 'error') { // Got an error
-        console.error(e.data);
-      } else {
-        ul.append(createRestaurantHTML(e.data.restaurant, e.data.reviews,e.data.webpsrcset, e.data.jpgsrcset, e.data.imagetext, e.data.imageurl, e.data.urltext, e.data.url));
-        addMarkersToMap(e.data.restaurant,e.data.url);
-      }
-    }, false);
     if(restaurants.length > 1){
       restaurants.forEach(restaurant => {
         dbWorker.postMessage({action:'createRestaurantHTML', restaurant,});
@@ -475,6 +439,62 @@ document.getElementById('cuisines-select').addEventListener('blur',function(){
     this.previousElementSibling.classList.remove('filter__label--active');
   }
 })
+
+dbWorker.addEventListener('message', function(e) {
+  if (e.data == 'error') { // Got an error
+    console.error(e.data);
+  } else {
+    switch(e.data.action){
+      case 'fetchNeighborhoods':
+        fillNeighborhoodsHTML(e.data.neighborhoods);
+        break;
+      case 'fetchCuisines':
+        fillCuisinesHTML(e.data.cuisines);
+        break;
+      case 'favoriteRestaurant':
+        if(e.data.favorite == true){
+          console.log('make it a favorite')
+          document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
+          document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+        }
+        if(e.data.favorite == false){
+          console.log('unfavorite it')
+          document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
+          document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+        }
+        break;
+      case 'fetchRestaurantByCuisineAndNeighborhood':
+        resetRestaurants(e.data.restults);
+        fillRestaurantsHTML(e.data.results);
+        break;
+      case 'createRestaurantHTML':
+        const ul = document.getElementById('restaurants-list');
+        ul.append(createRestaurantHTML(e.data.restaurant, e.data.reviews,e.data.webpsrcset, e.data.jpgsrcset, e.data.imagetext, e.data.imageurl, e.data.urltext, e.data.url));
+        addMarkersToMap(e.data.restaurant,e.data.url);   
+        break;
+    }
+    
+  }
+}, false);
+
+navigator.serviceWorker.addEventListener('message', function(e) {
+  if (e.data == 'error') { // Got an error
+    console.error(e.data);
+  } else {
+    if(e.data.favorite == true){
+      console.log('make it a favorite')
+      document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+    }
+    if(e.data.favorite == false){
+      console.log('unfavorite it')
+      document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
+      document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+    }
+
+    
+  }
+}, false);
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
