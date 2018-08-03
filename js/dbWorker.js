@@ -271,6 +271,7 @@ self.addEventListener('message', function(e) {
                             return store.put(newReviews)
                         })      
                     }).then(function(){
+                        console.log('postReview',response)
                         self.postMessage({'action':'postReview',restaurant_id:response.restaurant_id});
                     });      
                 }).catch((error)=>{                
@@ -291,7 +292,9 @@ self.addEventListener('message', function(e) {
                         })      
                     }).then(function(){
                         console.log('time to add a sync')
+          
                         //self.postMessage({action:'sync'});
+                        self.postMessage({'action':'postReview',restaurant_id:e.data.data.restaurant_id});
                     });          
                 })
             }

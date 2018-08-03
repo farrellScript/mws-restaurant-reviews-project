@@ -234,6 +234,12 @@ fillRestaurantHTML = (restaurant,reviews,webpsrcset,jpgsrcset,imagetext,imageurl
   // Setup picture element
   const picture = document.getElementById('restaurant-img');
   picture.innerHTML= '';
+  const svgimg = document.createElement('img');
+  svgimg.className = 'restaurantdetail__image';
+  svgimg.alt = '';
+  svgimg.src = '/img/undefined.svg';
+  picture.append(svgimg);
+
   // Add the first image set to the restaurant card
   const webpimage = document.createElement('source');
   webpimage.setAttribute('data-srcset',webpsrcset);
@@ -431,22 +437,35 @@ document.querySelector('.restaurantdetail__reviewnameinput').addEventListener('b
 
 document.querySelector('.restaurantdetails__reviewform').addEventListener('submit',function(e){
   e.preventDefault();
-  let restaurantid = document.querySelector('.restaurantdetail__id').value;
-  let rating = document.querySelector('.restaurantdetail__star--selected').getAttribute('data-value');
-  let name = document.querySelector('.restaurantdetail__reviewnameinput').value;
-  let comment = document.querySelector('.restaurantdetail__reviewinput').value;
-
-  let data = {
-    "restaurant_id": parseInt(restaurantid),
-    "name": name,
-    "rating": parseInt(rating),
-    "comments": comment,
-    // "createdAt":new Date().getTime(),
-    // "updatedAt":new Date().getTime(),
-    // "unsynced":true,
+  const validationerror = document.querySelector('.restaurantdetails__validationerror')
+  if(validationerror != null){
+    validationerror.parentNode.removeChild(validationerror)
+  }
+  if(document.querySelector('.restaurantdetail__id') != null && 
+    document.querySelector('.restaurantdetail__star--selected') != null && 
+    document.querySelector('.restaurantdetail__reviewnameinput').value != "" &&
+    document.querySelector('.restaurantdetail__reviewinput').value != ""
+  ){
+    let restaurantid = document.querySelector('.restaurantdetail__id').value;
+    let rating = document.querySelector('.restaurantdetail__star--selected').getAttribute('data-value');
+    let name = document.querySelector('.restaurantdetail__reviewnameinput').value;
+    let comment = document.querySelector('.restaurantdetail__reviewinput').value;
+  
+    let data = {
+      "restaurant_id": parseInt(restaurantid),
+      "name": name,
+      "rating": parseInt(rating),
+      "comments": comment,
+    }
+    dbWorker.postMessage({action:'postReview', data, id:data.restaurant_id});
+  }else{
+    const error = document.createElement('p');
+    error.className = "restaurantdetails__validationerror";
+    error.innerHTML = "All Fields Are Required";
+    document.querySelector('.restaurantdetails__reviewform').append(error);
   }
 
-  dbWorker.postMessage({action:'postReview', data, id:data.restaurant_id});
+  
 });
 
 document.querySelector('.restaurantdetail__likebutton').addEventListener('click',function(e){
@@ -497,6 +516,16 @@ dbWorker.addEventListener('message', function(e) {
       document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
     }
+    if(e.data.action == 'postReview'){
+      console.log('e.data',e.data)
+      dbWorker.postMessage({action:'fillReviewsHTML', id:e.data.restaurant_id});
+    }
+    if(e.data.action == 'fillReviewsHTML'){
+      if(e.data.reviews.length){
+        fillReviewsHTML(e.data.reviews);
+      }
+    }
+
     // if(e.data.action === 'sync'){
     //   console.log('back here')
     //   if ('serviceWorker' in navigator) {
@@ -555,6 +584,7 @@ setTimeout(function(){
     if (e.data == 'error') { // Got an error
       console.error(e.data)
     } else {
+
 
       if(e.data.reviews){
         if(e.data.reviews.length){

@@ -285,49 +285,7 @@ createRestaurantHTML = (restaurant,reviews,webpsrcset, jpgsrcset, imagetext,imag
   // Create a div to place text elements in
   const lowercontainer = document.createElement('div')
   lowercontainer.className = 'restaurant__textcontainer'
-
-  // Button to like or dislike
-  const like = document.createElement('button');
-  like.className = 'restaurant__likebutton'
-  like.setAttribute('aria-label',`Click to favorite ${restaurant.name}`);
-  if (restaurant.is_favorite){
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-    svg.setAttribute('xlmns','http://www.w3.org/2000/svg');
-    svg.setAttribute('xlmns:xlink','http://www.w3.org/1999/xlink');
-    svg.setAttribute('version','1,1');
-    svg.setAttribute('version','1,1');
-    svg.setAttribute('x','0px');
-    svg.setAttribute('y','0px');
-    svg.setAttribute("viewBox",'0 0 24 24');
-    svg.setAttribute("xml:space","preserve");
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d','M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z');
-    svg.append(path);
-
-    svg.setAttribute('class','restaurant__likebuttonimage restaurant__likebuttonimage--active');
-    like.append(svg);
-
-  }else{
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('xlmns','http://www.w3.org/2000/svg');
-    svg.setAttribute('xlmns:xlink','http://www.w3.org/1999/xlink');
-    svg.setAttribute('version','1,1');
-    svg.setAttribute('version','1,1');
-    svg.setAttribute('x','0px');
-    svg.setAttribute('y','0px');
-    svg.setAttribute("viewBox",'0 0 24 24');
-    svg.setAttribute("xml:space","preserve");
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d','M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z');
-    svg.append(path);
-    
-    svg.setAttribute('class','restaurant__likebuttonimage');
-    like.append(svg);
-  }
-  lowercontainer.append(like)
-
+  
   // Name of the restaurant
   const name = document.createElement('h2');
   name.className = 'restaurant__name'
@@ -440,6 +398,8 @@ document.getElementById('cuisines-select').addEventListener('blur',function(){
   }
 })
 
+
+
 dbWorker.addEventListener('message', function(e) {
   if (e.data == 'error') { // Got an error
     console.error(e.data);
@@ -451,18 +411,6 @@ dbWorker.addEventListener('message', function(e) {
       case 'fetchCuisines':
         fillCuisinesHTML(e.data.cuisines);
         break;
-      case 'favoriteRestaurant':
-        if(e.data.favorite == true){
-          console.log('make it a favorite')
-          document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
-          document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
-        }
-        if(e.data.favorite == false){
-          console.log('unfavorite it')
-          document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
-          document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
-        }
-        break;
       case 'fetchRestaurantByCuisineAndNeighborhood':
         resetRestaurants(e.data.restults);
         fillRestaurantsHTML(e.data.results);
@@ -471,30 +419,17 @@ dbWorker.addEventListener('message', function(e) {
         const ul = document.getElementById('restaurants-list');
         ul.append(createRestaurantHTML(e.data.restaurant, e.data.reviews,e.data.webpsrcset, e.data.jpgsrcset, e.data.imagetext, e.data.imageurl, e.data.urltext, e.data.url));
         addMarkersToMap(e.data.restaurant,e.data.url);   
+        setTimeout(function(){
+          document.getElementById('restaurants-list-ghost').style.opacity = 0;
+        },1000);
+        
+      
         break;
     }
     
   }
 }, false);
 
-navigator.serviceWorker.addEventListener('message', function(e) {
-  if (e.data == 'error') { // Got an error
-    console.error(e.data);
-  } else {
-    if(e.data.favorite == true){
-      console.log('make it a favorite')
-      document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
-      document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
-    }
-    if(e.data.favorite == false){
-      console.log('unfavorite it')
-      document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
-      document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
-    }
-
-    
-  }
-}, false);
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.

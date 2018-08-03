@@ -72,7 +72,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
 
-const staticCacheName = "mwsrestaurantreview-v9";
+const staticCacheName = "mwsrestaurantreview-v20";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
@@ -217,6 +217,7 @@ self.addEventListener('fetch',function(event){
 				return fetch(event.request).then(function(response){
 					return response.json();
 				}).then(function(json){
+					
 					let serverFavorite = json.is_favorite
 					return dbPromise.then(function(db){
 						var tx = db.transaction('restaurants','readwrite');
@@ -274,7 +275,18 @@ self.addEventListener('fetch',function(event){
 							return json;
 						})
 		
-
+					
+					}).catch(function(){
+						console.log('here')
+						return dbPromise.then(function(db){
+							var tx = db.transaction('restaurants','readwrite');
+							var keyValStore = tx.objectStore('restaurants');
+							keyValStore.put({
+								id: id,
+								data: json
+							});
+							return json;
+						})
 					})
 				}).catch(function(){
 					// there was an error, just respond with what was in the cache
@@ -293,11 +305,13 @@ self.addEventListener('fetch',function(event){
 			event.respondWith(
 				// Check to see if the restaurant page has been cached, if it is return the cached version otherwise get it from the network
 				caches.match('/restaurant.html').then((response)=>{
-					return response || fetch(event.request).then((response)=>{
-						caches.open(staticCacheName).then(function(cache){
+					return fetch(event.request).then(function(response){
+						return caches.open(staticCacheName).then(function(cache){
 							cache.put(event.request,response.clone());
 							return response;
 						})
+					}).catch(function() {
+						return caches.match(event.request);
 					});
 				})
 			)
@@ -312,14 +326,26 @@ self.addEventListener('fetch',function(event){
 				// 		});
 				// 	});
 				// })
+				// caches.match(event.request).then((response)=>{
+				// 	return response || fetch(event.request).then((response)=>{
+				// 		caches.open(staticCacheName).then(function(cache){
+				// 			cache.put(event.request,response.clone());
+				// 			return response;
+				// 		})
+				// 	});
+				// })
+				
 				caches.match(event.request).then((response)=>{
-					return response || fetch(event.request).then((response)=>{
-						caches.open(staticCacheName).then(function(cache){
+					return fetch(event.request).then(function(response){
+						return caches.open(staticCacheName).then(function(cache){
 							cache.put(event.request,response.clone());
 							return response;
 						})
-					});
+					}).catch(function() {
+						return caches.match(event.request);
+					})
 				})
+				
 			);
 		}
 	}
