@@ -8,8 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
   <title>Restaurant Reviews</title>
+  <meta name="description" content="A restaurant review application that works online, offline, and everywhere in between.">
 </head>
-
 <body>
   <header class="header">
     <a href="#restaurant-list-container" class="skip-link">Skip to main content</a>
@@ -17,18 +17,19 @@
       <h1 class="header__h1"><a href="/" class="header__link"><img class="header__logo" alt="Home Icon" src="/img/logo.svg"></a></h1>
     </nav>
   </header>
-
   <main id="maincontent" class="main">
     <section id="map-container" class="map__container">
       <div id="map" class="map__application" role="application" aria-label="Map showing restaurant locations"></div>
     </section>
     <section id="restaurant-list-container" class="filter__container" tabindex="-1">
+      <!-- Beginning of filter options -->
       <div class="filter__options">
         <div class="filter__selectcontainer">
           <label class="filter__label" for="neighborhoods-select">
             Filter neighborhoods
           </label>
           <select class="filter__select" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+            <!-- to be filled in with javascript later-->
             <option value="all"></option>
           </select>
           <svg class="filter__selectdown" width='292.36px' height='292.36px' enable-background='new 0 0 292.362 292.362' version='1.1' viewBox='0 0 292.362 292.362' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><path d='m286.94 69.377c-3.614-3.617-7.898-5.424-12.848-5.424h-255.81c-4.952 0-9.233 1.807-12.85 5.424-3.617 3.621-5.424 7.902-5.424 12.851 0 4.948 1.807 9.229 5.424 12.847l127.91 127.91c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.91-127.91c3.613-3.617 5.427-7.898 5.427-12.847 0-4.948-1.814-9.229-5.427-12.85z'/></svg>
@@ -38,11 +39,13 @@
             Filter Cuisines
           </label>
           <select id="cuisines-select" class="filter__select" name="cuisines" onchange="updateRestaurants()">
+            <!-- to be filled in with javascript later-->
             <option value="all"></option>
           </select>
           <svg class="filter__selectdown" width='292.36px' height='292.36px' enable-background='new 0 0 292.362 292.362' version='1.1' viewBox='0 0 292.362 292.362' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><path d='m286.94 69.377c-3.614-3.617-7.898-5.424-12.848-5.424h-255.81c-4.952 0-9.233 1.807-12.85 5.424-3.617 3.621-5.424 7.902-5.424 12.851 0 4.948 1.807 9.229 5.424 12.847l127.91 127.91c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.91-127.91c3.613-3.617 5.427-7.898 5.427-12.847 0-4.948-1.814-9.229-5.427-12.85z'/></svg>
         </div>
       </div>
+      <!-- beginning of ghost container, the four blank restaurants that show while the page is loading to improve perceived speed -->
       <ul id="restaurants-list-ghost" class="restaurantlist__container">
           <li class="restaurant__container">
               <svg class="restaurant__image" style="enable-background:new 0 0 400 300"version=1.1 viewBox="0 0 400 300"x=0px xml:space=preserve xmlns=http://www.w3.org/2000/svg xmlns:xlink=http://www.w3.org/1999/xlink y=0px><style>.st0{fill:#a3a3a3}.st1{display:none}.st2{display:inline;fill:#828282}.st3{fill:#828282}.st4{clip-path:url(#SVGID_2_);fill:#a3a3a3}</style><rect class=st0 height=300 width=400 /><g class=st1><polygon class=st2 points="197.7,150.5 255.9,49.9 314.7,150.5 	"/></g><circle cx=195.8 cy=150.5 r=60.4 class=st3 /><polygon class=st3 points="197.8,150.2 255.9,49.9 314.7,150.5 "/><g><defs><circle cx=195.8 cy=150 r=60.4 id=SVGID_1_ /></defs><clipPath id=SVGID_2_><use style=overflow:visible xlink:href=#SVGID_1_ /></clipPath><polygon class=st4 points="197.8,150.2 257.1,49.5 315.3,150.2 	"/></g></svg>
@@ -93,12 +96,18 @@
               </div>
           </li>
       </ul>
-      <ul id="restaurants-list" class="restaurantlist__container"></ul>
+      <!-- End of Ghost Container -->
+      <!-- Beginning of Restaurant List Container -->
+      <ul id="restaurants-list" class="restaurantlist__container">
+        <!-- To be filled in with javascript later -->
+      </ul>
+      <!-- End of Restaurant List Container -->
       <footer id="footer" class="footer__container">
         <p class="footer__line">Copyright (c) 2018 <a href="/" class="footer__link">Restaurant Reviews</a></p>
         <p class="footer__line">All Rights Reserved.</p> 
       </footer>
     </section>
+    <!-- Notification toast when a new service worker is available -->
     <div id="toast" class="toast" role="dialog" tabindex="-1">
         <p tabindex="0" class="toast__message">Update Available!</p>
         <div class="toast__buttoncontainer">
@@ -106,9 +115,8 @@
             <button class="toast__button" id="dismiss-version">Dismiss</button>
         </div>
     </div>
-    
-    
   </main>
+  <!-- Main javascript file for the home page -->
   <script type="application/javascript" charset="utf-8" async defer src="js/main.js"></script>
 </body>
 

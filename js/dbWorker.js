@@ -72,7 +72,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dbhelper_js__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_idb__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_idb__);
-importScripts('./dbhelper.js');
+
 
 
 
@@ -523,20 +523,6 @@ class DBHelper {
   static imageSrcForRestaurant(restaurant) {
     return (`/img/${restaurant.photograph}_1x.jpg`);
   }
-
-  /**
-   * Map marker for a restaurant.
-   */
-  // static mapMarkerForRestaurant(restaurant, map) {
-  //   // https://leafletjs.com/reference-1.3.0.html#marker  
-  //   const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
-  //     {title: restaurant.name,
-  //     alt: restaurant.name,
-  //     url: DBHelper.urlForRestaurant(restaurant)
-  //     })
-  //     marker.addTo(newMap);
-  //   return marker;
-  //  } 
 
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = DBHelper;

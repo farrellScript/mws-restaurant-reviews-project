@@ -1,4 +1,4 @@
-importScripts('./dbhelper.js');
+
 import DBHelper from './dbhelper.js';
 import idb from 'idb';
 

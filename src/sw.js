@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mwsrestaurantreview-v24";
+const staticCacheName = "mwsrestaurantreview-v26";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = idb.open('mwsrestaurants',2,function(upgradeDb){
@@ -244,24 +244,6 @@ self.addEventListener('fetch',function(event){
 			)
 		}else{
 			event.respondWith(
-				// Check to see if a response to this has been cached, if it is serve the cached response otherwise make a request to the network
-				// caches.match(event.request).then(function(response) {
-				// 	return response || fetch(event.request).then(function(response) {
-				// 		caches.open(staticCacheName).then(function(cache){
-				// 			cache.put(event.request, response.clone());
-				// 			return response;
-				// 		});
-				// 	});
-				// })
-				// caches.match(event.request).then((response)=>{
-				// 	return response || fetch(event.request).then((response)=>{
-				// 		caches.open(staticCacheName).then(function(cache){
-				// 			cache.put(event.request,response.clone());
-				// 			return response;
-				// 		})
-				// 	});
-				// })
-				
 				caches.match(event.request).then((response)=>{
 					return fetch(event.request).then(function(response){
 						return caches.open(staticCacheName).then(function(cache){
@@ -271,8 +253,7 @@ self.addEventListener('fetch',function(event){
 					}).catch(function() {
 						return caches.match(event.request);
 					})
-				})
-				
+				})		
 			);
 		}
 	}

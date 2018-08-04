@@ -97,6 +97,19 @@ gulp.task('sw',function(){
     .pipe(gulp.dest('./'));
 });
 
+gulp.task('worker-prod',function(){
+    return gulp.src('./src/dbWorker.js')
+    .pipe(webpack({
+        watch: false,
+        mode:'production',
+        output: {
+            filename: 'dbWorker.js',
+        }
+    },
+    webpack4))
+    .pipe(gulp.dest('./'));
+});
+
 gulp.task('sw-prod',function(){
     return gulp.src('./src/sw.js')
     .pipe(webpack({
