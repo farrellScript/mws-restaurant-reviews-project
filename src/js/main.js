@@ -69,7 +69,7 @@ if('serviceWorker' in navigator) {
     });
     // If the user clicks the dismiss button, hide the toast
     document.getElementById('dismiss-version').addEventListener('click',function(){
-      document.getElementById('toast').classList.remove('active');
+      document.getElementById('toast').classList.remove('toast--active');
       focusedElement.focus()
     });
     // If the toast is displaying, listen for keyboard events
@@ -94,7 +94,7 @@ if('serviceWorker' in navigator) {
       }
       // Escape Key
       if (e.keyCode === 27){
-        document.getElementById('toast').classList.remove('active');
+        document.getElementById('toast').classList.remove('toast--active');
         focusedElement.focus()
       } 
     });
@@ -112,7 +112,7 @@ if('serviceWorker' in navigator) {
     var lastTabStop = focusableElements[focusableElements.length -1];
 
     // Ok time to show the toast and focus on it
-    document.getElementById('toast').classList.add('active');
+    document.getElementById('toast').classList.add('toast--active');
     document.querySelector('#toast p').focus();
 
   }

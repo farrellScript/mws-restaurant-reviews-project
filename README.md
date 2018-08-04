@@ -35,7 +35,7 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
 
 ## Technologies Used
 
-* Service Worker: If the browser supporrts it, a service worker is registered and installed. This acts as a client-side proxy and allows the application to work offline, serving files from the Cache API if the network is unavailable.
+* Service Worker: If the browser supports it, a service worker is registered and installed. This acts as a client-side proxy and allows the application to work offline, serving files from the Cache API if the network is unavailable.
 
 * Cache API: Upon installation the service worker will precache the minimum amount of static assets needed for that application to work. As the user navigates through the application, when new assets are fetched they will also be added to the cache to be used if the network cannot be reached.
 

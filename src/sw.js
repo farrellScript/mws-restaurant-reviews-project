@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mwsrestaurantreview-v20";
+const staticCacheName = "mwsrestaurantreview-v24";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = idb.open('mwsrestaurants',2,function(upgradeDb){

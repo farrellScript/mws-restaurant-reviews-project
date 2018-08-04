@@ -72,7 +72,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_idb___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_idb__);
 
-const staticCacheName = "mwsrestaurantreview-v20";
+const staticCacheName = "mwsrestaurantreview-v24";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = __WEBPACK_IMPORTED_MODULE_0_idb___default.a.open('mwsrestaurants',2,function(upgradeDb){
