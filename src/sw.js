@@ -1,5 +1,5 @@
 import idb from 'idb'
-const staticCacheName = "mwsrestaurantreview-v26";
+const staticCacheName = "mwsrestaurantreview-v4";
 
 // Versioning of the IndexedDB database, to be used if the database needs to change
 const dbPromise = idb.open('mwsrestaurants',2,function(upgradeDb){
@@ -38,6 +38,9 @@ self.addEventListener('install',function(event){
 				'/img/marker-icon.png',
 				'/img/marker-icon-2x.png',
 				'/img/marker-shadow.png',
+				'/marker-icon.png',
+				'/marker-icon-2x.png',
+				'/marker-shadow.png',
 				'/img/logo_1x.png',
 				'/img/logo_2x.png',
 				'/img/undefined_1x.jpg',
@@ -204,7 +207,6 @@ self.addEventListener('fetch',function(event){
 		
 					
 					}).catch(function(){
-						console.log('here')
 						return dbPromise.then(function(db){
 							var tx = db.transaction('restaurants','readwrite');
 							var keyValStore = tx.objectStore('restaurants');

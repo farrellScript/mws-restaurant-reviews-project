@@ -179,12 +179,14 @@ fillRestaurantHTML = (restaurant, reviews, webpsrcset, jpgsrcset, imagetext, ima
     path.setAttribute('d', 'M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z')
     svg.append(path)
     svg.setAttribute('class', 'restaurantdetail__likebuttonimage restaurantdetail__likebuttonimage--active')
+    document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has been favorited. Click to unfavorite this restaurant.')
   } else {
     favorite.classList.remove('restaurantdetail__likebutton--active')
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     path.setAttribute('d', 'M12,20c0,0-9-7.111-9-11.111C3,6.222,5.25,4,7.95,4C9.525,4,11.1,5.139,12,6.25C12.9,5.139,14.25,4,16.05,4 C18.75,4,21,6.222,21,8.889C21,12.889,12,20,12,20z')
     svg.append(path)
     svg.setAttribute('class', 'restaurantdetail__likebuttonimage')
+    document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has not been favorited. Click to favorite this restaurant.')
   }
   favorite.innerHTML = ''
   favorite.append(svg)
@@ -505,11 +507,14 @@ dbWorker.addEventListener('message', function (e) {
       // make the restaurant a favorite
       document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+      document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has been favorited. Click to unfavorite this restaurant.')
     }
     if (e.data.favorite == false) {
       // unfavorite a restaurant
       document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+      
+      document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has not been favorited. Click to favorite this restaurant.')
     }
     if (e.data.action == 'postReview') {
       // update the reviews
@@ -533,11 +538,13 @@ navigator.serviceWorker.addEventListener('message', function (e) {
       // make the restaurant a favorite
       document.querySelector('.restaurantdetail__likebutton').classList.add('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.add('restaurantdetail__likebuttonimage--active')
+      document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has been favorited. Click to unfavorite this restaurant.')
     }
     if (e.data.favorite == false) {
       // unfavorite the restaurant
       document.querySelector('.restaurantdetail__likebutton').classList.remove('restaurantdetail__likebutton--active')
       document.querySelector('.restaurantdetail__likebuttonimage').classList.remove('restaurantdetail__likebuttonimage--active')
+      document.querySelector('.restaurantdetail__likebutton').setAttribute('aria-label','This restaurant has not been favorited. Click to favorite this restaurant.')
     }
   }
 }, false)
@@ -603,4 +610,4 @@ setTimeout(function () {
   for (let i = 0; i < lazyimage.length; ++i) {
     lazyimage[i].setAttribute('src', lazyimage[i].getAttribute('data-src'))
   }
-}, 1000)
+}, 500)

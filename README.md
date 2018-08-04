@@ -81,4 +81,5 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
 ### Performance
 
 * Site Performance: The targets for this stage are a minimum of 90 for the Progressive Web App audit, 90 for the Performance Audit, and 90 for the Accessibility Audit. As seen below, each of these targets was exceeded for the homepage and the restaurant detail page:
-	![Lighthouse Audit Rating ](./src/img/ligthouserating.jpg)
+	![Lighthouse audit rating for homepage ](./img/homepagescore.jpg)
+	![Lighthouse audit rating for restaurant detail page ](./img/detailpagescore.jpg)
